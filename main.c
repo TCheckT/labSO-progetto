@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "header.h"
+
 int main(int argc, char *argv[]) {
     /* printf("il programma si chiama %s\n", argv[0]);
     printf("ed i suoi %i argomenti sono:\n", argc-1);
@@ -9,11 +11,23 @@ int main(int argc, char *argv[]) {
         printf("%s\n", argv[i]);
     } */
 
-    /* Input check: numero di argomenti corretto */
-    if(argc < 3 || argc > 4) {
-        printf("Numero parametri in input non valido.\n");
-        printf("Formato atteso: <./nomeprogramma [ECTS1/ECTS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
+    if(inputCheck(argc, argv) != 0) {
         return 0;
+    }
+    printf("Formato input corretto!\n");
+    
+
+    return 0;
+
+}
+
+
+int inputCheck(int argc, char *argv[]) {
+
+    if(argc < 3 || argc > 4) {
+        printf("Sono attesi almeno 2 parametri, al più 3.\n");
+        printf("Formato atteso: <./nomeprogramma [ECTS1/ECTS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
+        return 1;
     }
 
     /* Input check: formato parametri corretto */
@@ -22,7 +36,7 @@ int main(int argc, char *argv[]) {
         printf("Stringa %s non accettata come primo parametro.\n", argv[1]);
         printf("Specificare modalità ECTS1 o modalità ECTS2 come primo parametro.\n");
         printf("Formato atteso: <./nomeprogramma [ECTS1/ECTS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
-        return 0;
+        return 1;
     }
 
     // se primo parametro è ECTS1 il secondo deve essere MAPPA1 o MAPPA2
@@ -31,7 +45,7 @@ int main(int argc, char *argv[]) {
             printf("Stringa %s non accettata come secondo parametro se si è in modalità ECTS1.\n", argv[2]);
             printf("Specificare itinerario MAPPA1 o itinerario MAPPA2 come secondo parametro.\n");
             printf("Formato atteso: <./nomeprogramma [ECTS1/ECTS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
-            return 0;
+            return 1;
         }
     }
 
@@ -43,7 +57,7 @@ int main(int argc, char *argv[]) {
                 strcmp(argv[3], "MAPPA1") != 0 && strcmp(argv[3], "MAPPA2") != 0) {
                 printf("In modalità ECTS2 ci si aspetta come secondo parametro in input l'eventuale opzione RBC e come terzo parametro la specifica dell'itinerario MAPPA1 o MAPPA2.\n");
                 printf("Formato atteso: <./nomeprogramma [ECTS1/ECTS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
-                return 0;
+                return 1;
             }
         }
         if(argc == 3) {
@@ -51,14 +65,9 @@ int main(int argc, char *argv[]) {
                 printf("Stringa %s non accettata come secondo parametro.\n", argv[2]);
                 printf("Specificare itinerario MAPPA1 o itinerario MAPPA2 come secondo parametro.\n");
                 printf("Formato atteso: <./nomeprogramma [ECTS1/ECTS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
-                return 0;
+                return 1;
             }
         }
     }
-
-    printf("Formato input corretto!\n");
-    
-
     return 0;
-
 }
