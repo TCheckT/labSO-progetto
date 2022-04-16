@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "header.h"
 
@@ -15,10 +17,33 @@ int main(int argc, char *argv[]) {
         return 0;
     }
     printf("Formato input corretto!\n");
-    
+
+    //A questo punto è necessario creare il processo PADRE_TRENI con una fork()
+    // come lavoro su tale processo in seguito?
+
+    pid_t PADRE_TRENI;
+    printf("Prima della fork. pid = %d, pid del genitore = %d\n",getpid(), getppid());
+
+    PADRE_TRENI = fork();
+    if(PADRE_TRENI < 0)
+        perror("fork error");
+    else if(PADRE_TRENI == 0) {
+        //figlio: Qua è dove deve agire il processo figlio del main PADRE_TRENI
+        printf("[Figlio] pid = %d, pid del genitore = %d\n",getpid(), getppid());
+
+        // PADRE_TRENI crea i segmenti di binario
+        creaSegmenti();
+
+    } else {
+        // genitore: Qua è dove continua ad agire il main
+        printf("[Genitore] pid = %d, pid del mio genitore = %d\n",getpid(), getppid());
+        printf("[Genitore] Mio figlio ha pid = %d\n", PADRE_TRENI);
+        sleep(1); // attende 1 secondo
+    }
+    // entrambi i processi
+    printf("PID %d termina.\n", getpid());
 
     return 0;
-
 }
 
 
@@ -70,4 +95,29 @@ int inputCheck(int argc, char *argv[]) {
         }
     }
     return 0;
+}
+
+int creaSegmenti() {
+    FILE *MA1 = fopen("MA1", "w");
+    FILE *MA2 = fopen("MA2", "w");
+    FILE *MA3 = fopen("MA3", "w");
+    FILE *MA4 = fopen("MA4", "w");
+    FILE *MA5 = fopen("MA5", "w");
+    FILE *MA6 = fopen("MA6", "w");
+    FILE *MA7 = fopen("MA7", "w");
+    FILE *MA8 = fopen("MA8", "w");
+    FILE *MA9 = fopen("MA9", "w");
+    FILE *MA10 = fopen("MA10", "w");
+    FILE *MA11 = fopen("MA11", "w");
+    FILE *MA12 = fopen("MA12", "w");
+    FILE *MA13 = fopen("MA13", "w");
+    FILE *MA14 = fopen("MA14", "w");
+    FILE *MA15 = fopen("MA15", "w");
+    FILE *MA16 = fopen("MA16", "w");
+
+    // SCRIVERE 0 come primo carattere di tutti i file
+    char fileInit[1];
+    fileInit[0] = 0;
+    fwrite(fileInit, 1, 1, MA1);
+
 }
