@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 #include "header.h"
@@ -33,6 +34,8 @@ int main(int argc, char *argv[]) {
 
         // PADRE_TRENI crea i segmenti di binario
         creaSegmenti();
+
+
 
     } else {
         // genitore: Qua è dove continua ad agire il main
@@ -67,7 +70,7 @@ int inputCheck(int argc, char *argv[]) {
     // se primo parametro è ECTS1 il secondo deve essere MAPPA1 o MAPPA2
     if(strcmp(argv[1], "ECTS1") == 0) {
         if(strcmp(argv[2], "MAPPA1") != 0 && strcmp(argv[2], "MAPPA2") != 0) {
-            printf("Stringa %s non accettata come secondo parametro se si è in modalità ECTS1.\n", argv[2]);
+            printf("Opzione %s non accettata come secondo parametro se si è in modalità ECTS1.\n", argv[2]);
             printf("Specificare itinerario MAPPA1 o itinerario MAPPA2 come secondo parametro.\n");
             printf("Formato atteso: <./nomeprogramma [ECTS1/ECTS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
             return 1;
@@ -114,10 +117,44 @@ int creaSegmenti() {
     FILE *MA14 = fopen("MA14", "w");
     FILE *MA15 = fopen("MA15", "w");
     FILE *MA16 = fopen("MA16", "w");
+    
+
+    // Impostare permessi accesso ai file 666
+    int i;
+    i = chmod("MA1", 0666); 
+    i = chmod("MA2", 0666);
+    i = chmod("MA3", 0666);
+    i = chmod("MA4", 0666);
+    i = chmod("MA5", 0666);
+    i = chmod("MA6", 0666);
+    i = chmod("MA7", 0666);
+    i = chmod("MA8", 0666);
+    i = chmod("MA9", 0666);
+    i = chmod("MA10", 0666);
+    i = chmod("MA11", 0666);
+    i = chmod("MA12", 0666);
+    i = chmod("MA13", 0666);
+    i = chmod("MA14", 0666);
+    i = chmod("MA15", 0666);
+    i = chmod("MA16", 0666);
 
     // SCRIVERE 0 come primo carattere di tutti i file
     char fileInit[1];
-    fileInit[0] = 0;
+    fileInit[0] = 48; // ASCII 48 => 0
     fwrite(fileInit, 1, 1, MA1);
-
+    fwrite(fileInit, 1, 1, MA2);
+    fwrite(fileInit, 1, 1, MA3);
+    fwrite(fileInit, 1, 1, MA4);
+    fwrite(fileInit, 1, 1, MA5);
+    fwrite(fileInit, 1, 1, MA6);
+    fwrite(fileInit, 1, 1, MA7);
+    fwrite(fileInit, 1, 1, MA8);
+    fwrite(fileInit, 1, 1, MA9);
+    fwrite(fileInit, 1, 1, MA10);
+    fwrite(fileInit, 1, 1, MA11);
+    fwrite(fileInit, 1, 1, MA12);
+    fwrite(fileInit, 1, 1, MA13);
+    fwrite(fileInit, 1, 1, MA14);
+    fwrite(fileInit, 1, 1, MA15);
+    fwrite(fileInit, 1, 1, MA16);
 }
