@@ -16,6 +16,5 @@ install:
 
 clean:
 	rm *.o
-	rm MA*
 	rm -r progetto	
-	
+	rm MA*
