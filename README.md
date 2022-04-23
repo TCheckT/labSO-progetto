@@ -4,8 +4,8 @@ Progetto per la parte di laboratorio del corso di Sistemi Operativi A.A. 2021-20
 Per ora ci sono due file .c, compilare entrambi con
 cc padre_treni.c -o padre_treni
 e
-cc main.c -o main
-ed eseguire ./main, che a sua volta eseguirà ./padre_treni con una exec
+cc movementAuthority.c -o movementAuthority
+ed eseguire ./movementAuthority, che a sua volta eseguirà ./padre_treni con una exec
 
 //DONE:
 - scansione argomenti input e controllo formato [ECTS1/2][PBR][MAPPA1/2]
@@ -18,7 +18,7 @@ ed eseguire ./main, che a sua volta eseguirà ./padre_treni con una exec
 1- DIFFERENZIARE PROCESSI FIGLI LANCIANDO PROCESSI CON EXEC 
 
 Problemi: 
-- è possibile creare l'eseguibile padre_treni nel makefile, mentre viene creato anche l'eseguibile main?
+- è possibile creare l'eseguibile padre_treni nel makefile, mentre viene creato anche l'eseguibile movementAuthority?
 - per processi_treni occorre creare un file eseguibile ciascuno?
 
 2- CREARE PROCESSO REGISTRO CON STRUTTURA DATI PER MAPPA1 E MAPPA2

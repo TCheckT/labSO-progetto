@@ -1,8 +1,8 @@
-main: main.o 
-	cc main.o -o main
+movementAuthority: movementAuthority.o 
+	cc movementAuthority.o -o movementAuthority
 
-main.o: main.c header.h
-	cc -c main.c
+movementAuthority.o: movementAuthority.c header.h
+	cc -c movementAuthority.c
 
 padre_treni: padre_treni.o
 	cc padre_treni.o -o padre_treni
@@ -15,12 +15,12 @@ install:
 	mkdir progetto/include
 	mkdir progetto/src
 	mkdir progetto/bin
-	mv main progetto/bin
+	mv movementAuthority progetto/bin
 	mv padre_treni progetto/bin
-	cp main.c progetto/src
+	cp movementAuthority.c progetto/src
 	cp padre_treni.c progetto/src
 	cp header.h progetto/include
-	cp main.make progetto
+	cp movementAuthority.make progetto
 
 clean:
 	rm *.o

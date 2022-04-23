@@ -103,10 +103,7 @@ int creaSegmenti() {
     i = chmod("MA16", 0666);
 
     // SCRIVERE 0 come primo carattere di tutti i file
-    // scrive 6 byte
-    /*char fileInit[1];
-    fileInit[0] = 48; // ASCII 48 => 0
-    */
+
     char fileInit[1];
     fileInit[0] = 48;
 
@@ -143,6 +140,7 @@ int creaSegmenti() {
     fclose(MA14);
     fclose(MA15);
     fclose(MA16);
+
     return 0;
 }
 
