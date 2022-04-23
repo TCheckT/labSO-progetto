@@ -1,19 +1,10 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
 #include "header.h"
 
-int main(int argc, char *argv[]) {
-    /* printf("il programma si chiama %s\n", argv[0]);
-    printf("ed i suoi %i argomenti sono:\n", argc-1);
-    for(int i = 1; i < argc; i++) {
-        printf("%s\n", argv[i]);
-    } */
 
+int main(int argc, char *argv[]) {
+
+    /* inputCheck controlla che gli argomenti passati 
+       in input in argv siano del giusto formato */
     if(inputCheck(argc, argv) != 0) {
         return 0;
     }
