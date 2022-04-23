@@ -22,6 +22,9 @@ Problemi:
 - per processi_treni occorre creare un file eseguibile ciascuno?
 
 2- CREARE PROCESSO REGISTRO CON STRUTTURA DATI PER MAPPA1 E MAPPA2
+Problemi:
+- come strutturare le mappe?
+- come comunicarle ai treni?
 
 3- far comunicare rispettiva MAPPA1/MAPPA2 da REGISTRO a ogni treno
 
