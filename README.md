@@ -10,7 +10,7 @@ ed eseguire ./main, che a sua volta eseguirà ./padre_treni con una exec
 //DONE:
 - scansione argomenti input e controllo formato [ECTS1/2][PBR][MAPPA1/2]
 - creazione processo PADRE_TRENI come figlio processo main
-- PADRE_TRENI crea i file rappresentanti i segmenti di binario, imposta correttamente i permessi a 666, ma nel provare ad inserire come primo carattere 0 ne inserisce 6 perchè C è bello e fa magheggi col fatto che sto aggiungendo un char che probabilmente è di 6 byte. W il C sempre sia lodato!!! Mortacci sua...
+- PADRE_TRENI crea i file rappresentanti i segmenti di binario, imposta correttamente i permessi a 666, ma nel provare ad inserire come primo carattere 0 ne inserisce 6 perchè C è bello e fa magheggi col fatto che sto aggiungendo un char che probabilmente è di 6 byte. W il C sempre sia lodato!!! Mortacci sua... [EDIT: RISOLTO!!!!!]
 - PADRE_TRENI fa anche le fork per generare i treni figli ma non so se è corretto farle sequenziali in questo modo.
 
 

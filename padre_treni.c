@@ -104,26 +104,45 @@ int creaSegmenti() {
 
     // SCRIVERE 0 come primo carattere di tutti i file
     // scrive 6 byte
-    char fileInit[1];
+    /*char fileInit[1];
     fileInit[0] = 48; // ASCII 48 => 0
-    
-    fwrite(fileInit, 1, 1, MA1);
-    fwrite(fileInit, 1, 1, MA2);
-    fwrite(fileInit, 1, 1, MA3);
-    fwrite(fileInit, 1, 1, MA4);
-    fwrite(fileInit, 1, 1, MA5);
-    fwrite(fileInit, 1, 1, MA6);
-    fwrite(fileInit, 1, 1, MA7);
-    fwrite(fileInit, 1, 1, MA8);
-    fwrite(fileInit, 1, 1, MA9);
-    fwrite(fileInit, 1, 1, MA10);
-    fwrite(fileInit, 1, 1, MA11);
-    fwrite(fileInit, 1, 1, MA12);
-    fwrite(fileInit, 1, 1, MA13);
-    fwrite(fileInit, 1, 1, MA14);
-    fwrite(fileInit, 1, 1, MA15);
-    fwrite(fileInit, 1, 1, MA16);
+    */
+    char fileInit[1];
+    fileInit[0] = 48;
 
+    fwrite(fileInit, sizeof(char), 1, MA1);
+    fwrite(fileInit, sizeof(char), 1, MA2);
+    fwrite(fileInit, sizeof(char), 1, MA3);
+    fwrite(fileInit, sizeof(char), 1, MA4);
+    fwrite(fileInit, sizeof(char), 1, MA5);
+    fwrite(fileInit, sizeof(char), 1, MA6);
+    fwrite(fileInit, sizeof(char), 1, MA7);
+    fwrite(fileInit, sizeof(char), 1, MA8);
+    fwrite(fileInit, sizeof(char), 1, MA9);
+    fwrite(fileInit, sizeof(char), 1, MA10);
+    fwrite(fileInit, sizeof(char), 1, MA11);
+    fwrite(fileInit, sizeof(char), 1, MA12);
+    fwrite(fileInit, sizeof(char), 1, MA13);
+    fwrite(fileInit, sizeof(char), 1, MA14);
+    fwrite(fileInit, sizeof(char), 1, MA15);
+    fwrite(fileInit, sizeof(char), 1, MA16);
+    
+    fclose(MA1);
+    fclose(MA2);
+    fclose(MA3);
+    fclose(MA4);
+    fclose(MA5);
+    fclose(MA6);
+    fclose(MA7);
+    fclose(MA8);
+    fclose(MA9);
+    fclose(MA10);
+    fclose(MA11);
+    fclose(MA12);
+    fclose(MA13);
+    fclose(MA14);
+    fclose(MA15);
+    fclose(MA16);
     return 0;
 }
 
