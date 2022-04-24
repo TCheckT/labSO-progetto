@@ -1,17 +1,21 @@
 # labSO-progetto
 Progetto per la parte di laboratorio del corso di Sistemi Operativi A.A. 2021-2022
 
-Per ora ci sono due file .c, compilare entrambi con
+Per ora ci sono tre file .c:
+Compilare padre_treni.c e movementAuthority.c con
 cc padre_treni.c -o padre_treni
 e
 cc movementAuthority.c -o movementAuthority
 ed eseguire ./movementAuthority, che a sua volta eseguirà ./padre_treni con una exec
+
+Compilare registro.c ed eseguire in autonomia per visualizzare alcune print che mostrano il corretto popolamento delle tabelle Mappa1 e Mappa2.
 
 //DONE:
 - scansione argomenti input e controllo formato [ECTS1/2][PBR][MAPPA1/2]
 - creazione processo PADRE_TRENI come figlio processo main
 - PADRE_TRENI crea i file rappresentanti i segmenti di binario, imposta correttamente i permessi a 666, ma nel provare ad inserire come primo carattere 0 ne inserisce 6 perchè C è bello e fa magheggi col fatto che sto aggiungendo un char che probabilmente è di 6 byte. W il C sempre sia lodato!!! Mortacci sua... [EDIT: RISOLTO!!!!!]
 - PADRE_TRENI fa anche le fork per generare i treni figli ma non so se è corretto farle sequenziali in questo modo.
+- aggiunto file registro.c che crea 2 strutture dati di tipo Tabella rappresentanti MAPPA1 e MAPPA2 e le popola. è facile accedere agli itinerari dei singoli treni quando richiesto con Mappa[1-2].T[1-5].
 
 
 //TODO:
@@ -23,8 +27,9 @@ Problemi:
 
 2- CREARE PROCESSO REGISTRO CON STRUTTURA DATI PER MAPPA1 E MAPPA2
 Problemi:
-- come strutturare le mappe?
-- come comunicarle ai treni?
+- come strutturare le mappe? [DONE]
+- come far interagire registro.c con gli altri programmi?
+- come comunicarle ai treni? 
 
 3- far comunicare rispettiva MAPPA1/MAPPA2 da REGISTRO a ogni treno
 
