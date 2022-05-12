@@ -1,15 +1,18 @@
 #include "header.h"
-// prende in input numero treno (T1-2-3-4-5) e mappa in uso (MAPPA1-2)
 
-typedef char* itinerario[10]; 
+// metodo per leggere ripetutamente da pipe e, se richiesta rilevata, chiamare metodo per inviare itinerario
+int requestScanner(int fd, char *str) { 
+    int n;
+    do { /* Read characters until ’\0’ or end-of-input */
+        n = read (fd, str, 1); /* Read one character */
+    } while (n > 0 && *str++ != 0);
+    return (n > 0); /* Return false if end-of-input */
+}
 
-struct Tabella {
-    char** T1;
-    char** T2;
-    char** T3;
-    char** T4;
-    char** T5;
-}; 
+int sendItinerary(char* train) {
+    printf("sending itinerary to %s\n", train);
+}
+
 
 int main() {
     char* tappa1; 
@@ -127,5 +130,25 @@ int main() {
     printf("T1 tappa 3: %s\n", Mappa2.T3[2]);
     printf("T1 tappa 3: %s\n", M2T1[2]);
     
+    // Dopo aver creato le tabelle il processo registro può connettersi in lettura alla PIPE
+    // itineraryRequestPipe, in attesa di ricevere richieste di itinerari.
+    int fd;
+    char str[100];
+    int satisfiedRequests = 0;
+    fd = open("itineraryRequestPipe", O_RDONLY);
+
+    while(satisfiedRequests < 1) { //must be 6 for MAPPA2
+        printf("waiting for requests...\n");
+        sleep(5);
+        while(requestScanner(fd, str)) {
+            printf("%s request for itinerary received\n", str);
+            sendItinerary(str);
+            satisfiedRequests++;
+        }
+    }
+
+
+
+
     return 0;
 }

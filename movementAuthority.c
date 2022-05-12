@@ -10,6 +10,35 @@ int main(int argc, char *argv[]) {
     }
     printf("Formato input corretto!\n");
 
+    //Crea pipe per invio richieste itinerario dei treni al registro
+    // Treno apre in scrittura registro apre in lettura
+    // ??? far mandare MAPPA1/2 a PADRE_TRENI ???
+    unlink("itineraryRequestPipe");
+    mknod("itineraryRequestPipe", S_IFIFO, 0);
+    chmod("itineraryRequestPipe", 0660);
+    
+    //Crea pipe per invio itinerari dal registro ai treni
+    // Treno apre in lettura registro apre in scrittura
+    unlink("T1registerPipe");
+    mknod("T1registerPipe", S_IFIFO, 0);
+    chmod("T1registerPipe", 0660);
+
+    unlink("T2registerPipe");
+    mknod("T2registerPipe", S_IFIFO, 0);
+    chmod("T2registerPipe", 0660);
+
+    unlink("T3registerPipe");
+    mknod("T3registerPipe", S_IFIFO, 0);
+    chmod("T3registerPipe", 0660);
+    
+    unlink("T4registerPipe");
+    mknod("T4registerPipe", S_IFIFO, 0);
+    chmod("T4registerPipe", 0660);
+    
+    unlink("T5registerPipe");
+    mknod("T5registerPipe", S_IFIFO, 0);
+    chmod("T5registerPipe", 0660);
+
     //A questo punto è necessario creare il processo PADRE_TRENI con una fork()
 
     pid_t PADRE_TRENI;

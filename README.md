@@ -8,7 +8,8 @@ e
 cc movementAuthority.c -o movementAuthority
 ed eseguire ./movementAuthority, che a sua volta eseguirà ./padre_treni con una exec
 
-Compilare registro.c ed eseguire in autonomia per visualizzare alcune print che mostrano il corretto popolamento delle tabelle Mappa1 e Mappa2.
+Compilare registro.c ed eseguire, dopo aver eseguito movementAuthority, per visualizzare alcune print che mostrano il corretto popolamento delle tabelle Mappa1 e Mappa2 e, inoltre, far procedere il processo figlio Treno1 che si era bloccato in attesa che registro si
+mettesse in lettura sulla pipe per la richiesta itinerario.
 
 //DONE:
 - scansione argomenti input e controllo formato [ECTS1/2][PBR][MAPPA1/2]
@@ -28,12 +29,24 @@ Problemi:
 2- CREARE PROCESSO REGISTRO CON STRUTTURA DATI PER MAPPA1 E MAPPA2
 Problemi:
 - come strutturare le mappe? [DONE]
-- come far interagire registro.c con gli altri programmi?
-- come comunicarle ai treni? 
+- come far interagire registro.c con gli altri programmi? [PIPE]
+- come comunicarle ai treni? [PIPE]
+
+Si sceglie di far comunicare ai treni i rispettivi itinerari tramite Pipe con nome.
+Nel main saranno creati 5 file pipe, uno per ciascun treno. 
+Ogni treno invierà nella pipe il messaggio (esempio per treno 1): "T1".
+Registro riceverà il messaggio e preparerà l'itinerario per poterlo mandare al treno che lo ha richiesto.
+Metodi ausiliari per evitare duplicazione di codice: 
+- requestItinerary(int numeroTreno) che ogni treno chiamerà come primo metodo. Comportamento: invia il messaggio di richiesta al registro.
+- sendItinerary(...) invia sulla pipe corrispondente, in ordine, le tappe dell'itinerario richiesto
+Manca da implementare sendItineray, differenziando la pipe in base al treno richiedente, e implementare
+il meccanismo per gli altri processi treno.
 
 3- far comunicare rispettiva MAPPA1/MAPPA2 da REGISTRO a ogni treno
 
-4- risistemare header
+4- rendere il processo registro figlio del main, da eseguire con fork dopo la creazione delle pipe
+
+5- risistemare header
 
 
 /
