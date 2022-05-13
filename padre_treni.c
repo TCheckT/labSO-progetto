@@ -1,5 +1,8 @@
 #include "header.h"
 
+int creaSegmenti(); 
+char * genName(int);
+
 int main() {
     // PADRE_TRENI crea i segmenti di binario
     if(creaSegmenti()!=0)
@@ -15,17 +18,6 @@ int main() {
     }
     else if(T1 == 0) {
         // treno T1
-        int fd, messageLen, i; char message [100];
-        sprintf(message,"T1"); /* Prepare message */
-        messageLen = strlen (message) + 1;
-        do { /* Keep trying to open the file until successful */
-        fd = open ("itineraryRequestPipe", O_WRONLY); /* Open named pipe for writing */
-        if (fd == -1) sleep (1); /* Try again in 1 second */
-        } while (fd == -1);
-
-        write (fd, message, messageLen);
-        sleep (3);
-
         routineTreno(1); 
         exit(EXIT_SUCCESS);
     }
@@ -77,84 +69,29 @@ int main() {
 }
 
 int creaSegmenti() {
-    FILE *MA1 = fopen("MA1", "w");
-    FILE *MA2 = fopen("MA2", "w");
-    FILE *MA3 = fopen("MA3", "w");
-    FILE *MA4 = fopen("MA4", "w");
-    FILE *MA5 = fopen("MA5", "w");
-    FILE *MA6 = fopen("MA6", "w");
-    FILE *MA7 = fopen("MA7", "w");
-    FILE *MA8 = fopen("MA8", "w");
-    FILE *MA9 = fopen("MA9", "w");
-    FILE *MA10 = fopen("MA10", "w");
-    FILE *MA11 = fopen("MA11", "w");
-    FILE *MA12 = fopen("MA12", "w");
-    FILE *MA13 = fopen("MA13", "w");
-    FILE *MA14 = fopen("MA14", "w");
-    FILE *MA15 = fopen("MA15", "w");
-    FILE *MA16 = fopen("MA16", "w");
-    
-    // Impostare permessi accesso ai file 666
-    int i;
-    i = chmod("MA1", 0666); 
-    i = chmod("MA2", 0666);
-    i = chmod("MA3", 0666);
-    i = chmod("MA4", 0666);
-    i = chmod("MA5", 0666);
-    i = chmod("MA6", 0666);
-    i = chmod("MA7", 0666);
-    i = chmod("MA8", 0666);
-    i = chmod("MA9", 0666);
-    i = chmod("MA10", 0666);
-    i = chmod("MA11", 0666);
-    i = chmod("MA12", 0666);
-    i = chmod("MA13", 0666);
-    i = chmod("MA14", 0666);
-    i = chmod("MA15", 0666);
-    i = chmod("MA16", 0666);
+    FILE * file; //buffer for file operations
+    char name[5];
 
-    // SCRIVERE 0 come primo carattere di tutti i file
+    for (int i = 1; i <= 16; ++i)
+    {   
+        //generating the name of the file MAx with metavariables
+        sprintf(name, "MA%d",i);
 
-    char fileInit[1];
-    fileInit[0] = 48;
+        //opeing the file in write-only mode
+        file = fopen(name, "w");
 
-    fwrite(fileInit, sizeof(char), 1, MA1);
-    fwrite(fileInit, sizeof(char), 1, MA2);
-    fwrite(fileInit, sizeof(char), 1, MA3);
-    fwrite(fileInit, sizeof(char), 1, MA4);
-    fwrite(fileInit, sizeof(char), 1, MA5);
-    fwrite(fileInit, sizeof(char), 1, MA6);
-    fwrite(fileInit, sizeof(char), 1, MA7);
-    fwrite(fileInit, sizeof(char), 1, MA8);
-    fwrite(fileInit, sizeof(char), 1, MA9);
-    fwrite(fileInit, sizeof(char), 1, MA10);
-    fwrite(fileInit, sizeof(char), 1, MA11);
-    fwrite(fileInit, sizeof(char), 1, MA12);
-    fwrite(fileInit, sizeof(char), 1, MA13);
-    fwrite(fileInit, sizeof(char), 1, MA14);
-    fwrite(fileInit, sizeof(char), 1, MA15);
-    fwrite(fileInit, sizeof(char), 1, MA16);
-    
-    fclose(MA1);
-    fclose(MA2);
-    fclose(MA3);
-    fclose(MA4);
-    fclose(MA5);
-    fclose(MA6);
-    fclose(MA7);
-    fclose(MA8);
-    fclose(MA9);
-    fclose(MA10);
-    fclose(MA11);
-    fclose(MA12);
-    fclose(MA13);
-    fclose(MA14);
-    fclose(MA15);
-    fclose(MA16);
+        //setting access permissions
+        chmod(name , 0666);
 
+        // writing 0 as a first character in every file
+        fwrite("0", sizeof(char), 1, file);
+
+        //closing files
+        fclose(file);
+    }
     return 0;
 }
 
 int routineTreno(int numeroTreno) {
-    printf("treno T%d ready\n", numeroTreno);
+    printf("treno T%d creato\n", numeroTreno);
 }
