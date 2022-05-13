@@ -18,6 +18,16 @@ int main() {
     }
     else if(T1 == 0) {
         // treno T1
+        int fd, messageLen, i; char message [100];
+        sprintf(message,"T1"); /* Prepare message */
+        messageLen = strlen (message) + 1;
+        do { /* Keep trying to open the file until successful */
+            fd = open ("itineraryRequestPipe", O_WRONLY); /* Open named pipe for writing */
+            if (fd == -1) sleep (1); /* Try again in 1 second */
+        } while (fd == -1);
+
+        write (fd, message, messageLen);
+        sleep (3);
         routineTreno(1); 
         exit(EXIT_SUCCESS);
     }
@@ -93,5 +103,5 @@ int creaSegmenti() {
 }
 
 int routineTreno(int numeroTreno) {
-    printf("treno T%d creato\n", numeroTreno);
+    printf("treno T%d ready\n", numeroTreno);
 }
