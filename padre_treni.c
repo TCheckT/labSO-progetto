@@ -76,6 +76,7 @@ int main() {
         exit(EXIT_SUCCESS);
     }
     exit(EXIT_SUCCESS);
+    return 0;
 }
 
 int creaSegmenti() {

@@ -2,14 +2,14 @@
 Progetto per la parte di laboratorio del corso di Sistemi Operativi A.A. 2021-2022
 
 Per ora ci sono tre file .c:
-Compilare padre_treni.c e movementAuthority.c con
+Compilare padre_treni.c, registro.c e movementAuthority.c con
 cc padre_treni.c -o padre_treni
 e
+cc registro.c -o registro
+e
 cc movementAuthority.c -o movementAuthority
-ed eseguire ./movementAuthority, che a sua volta eseguirà ./padre_treni con una exec
+ed eseguire ./movementAuthority, che a sua volta eseguirà ./padre_treni e ./registro con una exec
 
-Compilare registro.c ed eseguire, dopo aver eseguito movementAuthority, per visualizzare alcune print che mostrano il corretto popolamento delle tabelle Mappa1 e Mappa2 e, inoltre, far procedere il processo figlio Treno1 che si era bloccato in attesa che registro si
-mettesse in lettura sulla pipe per la richiesta itinerario.
 
 //DONE:
 - scansione argomenti input e controllo formato [ECTS1/2][PBR][MAPPA1/2]
@@ -18,6 +18,7 @@ mettesse in lettura sulla pipe per la richiesta itinerario.
 - PADRE_TRENI fa anche le fork per generare i treni figli ma non so se è corretto farle sequenziali in questo modo.
 - aggiunto file registro.c che crea 2 strutture dati di tipo Tabella rappresentanti MAPPA1 e MAPPA2 e le popola. è facile accedere agli itinerari dei singoli treni quando richiesto con Mappa[1-2].T[1-5].
 
+- rendere il processo registro figlio del main, da eseguire con fork dopo la creazione delle pipe 
 
 //TODO:
 1- DIFFERENZIARE PROCESSI FIGLI LANCIANDO PROCESSI CON EXEC 
@@ -44,9 +45,7 @@ il meccanismo per gli altri processi treno.
 
 3- far comunicare rispettiva MAPPA1/MAPPA2 da REGISTRO a ogni treno
 
-4- rendere il processo registro figlio del main, da eseguire con fork dopo la creazione delle pipe
-
-5- risistemare header
+4- risistemare header
 
 
 /

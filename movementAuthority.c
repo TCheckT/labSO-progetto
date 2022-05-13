@@ -49,15 +49,39 @@ int main(int argc, char *argv[]) {
         exit(-1);
     }
     else if(PADRE_TRENI == 0) {
-        //figlio: Qua è dove deve agire il processo figlio del main PADRE_TRENI
-        execl("./padre_treni", 0);
+        //figlio: esegue processo padre_treni
+        execl("./padre_treni", NULL);
     } else {
         // genitore: Qua è dove continua ad agire il main
-        wait(NULL);
-        printf("[Genitore] pid = %d, pid del mio genitore = %d\n",getpid(), getppid());
-        printf("[Genitore] Mio figlio ha pid = %d\n", PADRE_TRENI);
-        sleep(1); // attende 1 secondo
-        exit(0);
+
+        // altra fork per lanciare il processo registro
+        pid_t REGISTRO;
+        REGISTRO = fork();
+        if(REGISTRO < 0) {
+            perror("fork error");
+            exit(EXIT_FAILURE);
+        }
+        else if(REGISTRO == 0) {
+            // figlio: esegue processo registro
+
+            // se ci sono 3 argomenti MAPPA sta nel terzo
+            if(argc == 4) {
+                execl("./registro", argv[3], NULL);
+            } else {
+                // altrimenti nel secondo
+                execl("./registro", argv[2], NULL);
+            }
+
+            
+        } else {
+            // genitore: continua ad agire il main
+            wait(NULL);
+            printf("[Genitore] pid = %d, pid del mio genitore = %d\n",getpid(), getppid());
+            printf("[Genitore] Mio figlio ha pid = %d\n", PADRE_TRENI);
+            sleep(1); // attende 1 secondo
+            exit(0);
+        }
+        
     }
     // entrambi i processi
     printf("PID %d termina.\n", getpid());
@@ -113,5 +137,6 @@ int inputCheck(int argc, char *argv[]) {
             }
         }
     }
+
     return 0;
 }

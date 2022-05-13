@@ -9,12 +9,13 @@ int requestScanner(int fd, char *str) {
     return (n > 0); /* Return false if end-of-input */
 }
 
-int sendItinerary(char* train) {
-    printf("sending itinerary to %s\n", train);
+int sendItinerary(char* train, char* mappa) {
+    printf("sending %s itinerary to %s\n", mappa, train);
+    fflush(stdout);
 }
 
 
-int main() {
+int main(int argc, char *argv[]) {
     char* tappa1; 
     char* tappa2;
     char* tappa3;
@@ -142,10 +143,11 @@ int main() {
         sleep(5);
         while(requestScanner(fd, str)) {
             printf("%s request for itinerary received\n", str);
-            sendItinerary(str);
+           
+            sendItinerary(str, argv[1]);
             satisfiedRequests++;
         }
     }
-
+    exit(EXIT_SUCCESS);
     return 0;
 }
