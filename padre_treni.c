@@ -1,4 +1,4 @@
-#include "header.h"
+#include "../include/header.h"
 
 int creaSegmenti(); 
 char * genName(int);

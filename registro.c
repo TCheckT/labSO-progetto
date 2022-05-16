@@ -1,4 +1,4 @@
-#include "header.h"
+#include "../include/header.h"
 
 // metodo per leggere ripetutamente da pipe e, se richiesta rilevata, chiamare metodo per inviare itinerario
 int requestScanner(int fd, char *str) { 
