@@ -10,12 +10,13 @@ int requestScanner(int fd, char *str) {
 }
 
 int sendItinerary(char* train, char* mappa) {
-    printf("sending %s itinerary to %s\n", mappa, train);
+    printf("Sending %s itinerary to %s\n", mappa, train);
     fflush(stdout);
 }
 
 
 int main(int argc, char *argv[]) {
+    printf("Ricevo %s da movementAuthority\n", argv[1]);
     char* tappa1; 
     char* tappa2;
     char* tappa3;
@@ -64,6 +65,7 @@ int main(int argc, char *argv[]) {
      struct Tabella Mappa1 = {M1T1, M1T2, M1T3, M1T4, M1T5};
 
     /* DEBUG printf: */
+    /*
     printf("MAPPA1:\n");
     printf("T4 tappa6: %s\n", M1T4[5]);
     printf("T3 tappa1: %s\n", M1T3[0]);
@@ -73,7 +75,7 @@ int main(int argc, char *argv[]) {
     printf("T4 tappa 4: %s\n", Mappa1.T4[3]);
     
     printf("T1 tappa 3: %s\n", Mappa1.T3[2]);
-    
+    */
 
     // popolamento MAPPA2
     tappa1 = "S2";
@@ -120,6 +122,7 @@ int main(int argc, char *argv[]) {
     struct Tabella Mappa2 = {M2T1, M2T2, M2T3, M2T4, M2T5};
 
     /* DEBUG printf: */
+    /*
     printf("MAPPA2:\n");
     printf("T4 tappa6: %s\n", M2T4[5]);
     printf("T3 tappa1: %s\n", M2T3[0]);
@@ -130,7 +133,7 @@ int main(int argc, char *argv[]) {
     
     printf("T1 tappa 3: %s\n", Mappa2.T3[2]);
     printf("T1 tappa 3: %s\n", M2T1[2]);
-    
+    */
     // Dopo aver creato le tabelle il processo registro può connettersi in lettura alla PIPE
     // itineraryRequestPipe, in attesa di ricevere richieste di itinerari.
     int fd;
@@ -138,16 +141,16 @@ int main(int argc, char *argv[]) {
     int satisfiedRequests = 0;
     fd = open("itineraryRequestPipe", O_RDONLY);
 
-    while(satisfiedRequests < 1) { //must be 6 for MAPPA2
-        printf("waiting for requests...\n");
-        sleep(5);
-        while(requestScanner(fd, str)) {
-            printf("%s request for itinerary received\n", str);
-           
-            sendItinerary(str, argv[1]);
-            satisfiedRequests++;
-        }
+    
+    printf("waiting for requests...\n");
+    sleep(5);
+    while(satisfiedRequests < 1 && requestScanner(fd, str)) {
+        printf("%s request for itinerary received\n", str);
+       
+        sendItinerary(str, argv[1]);
+        satisfiedRequests++;
     }
+    
     exit(EXIT_SUCCESS);
     return 0;
 }

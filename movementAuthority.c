@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
     }
     else if(PADRE_TRENI == 0) {
         //figlio: esegue processo padre_treni
-        execl("./padre_treni", NULL);
+        execl("./padre_treni", "padre_treni",NULL);
     } else {
         // genitore: Qua è dove continua ad agire il main
 
@@ -63,13 +63,15 @@ int main(int argc, char *argv[]) {
         }
         else if(REGISTRO == 0) {
             // figlio: esegue processo registro
-
+           
             // se ci sono 3 argomenti MAPPA sta nel terzo
             if(argc == 4) {
-                execl("./registro", argv[3], NULL);
+                printf("Invio %s a registro\n", argv[3]);
+                execl("./registro", "registro", argv[3], NULL);
             } else {
                 // altrimenti nel secondo
-                execl("./registro", argv[2], NULL);
+                printf("Invio %s a registro\n", argv[2]);
+                execl("./registro", "registro", argv[2], NULL);
             }
 
             
