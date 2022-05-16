@@ -30,4 +30,8 @@ clean:
 restore:
 	mv progetto/include/* .
 	mv progetto/src/* .
+<<<<<<< HEAD
 	rm -rd progetto
+=======
+	rm -rd progetto
+>>>>>>> 52e7f754957d97aa5c3e1003e540ca905f3bd4f2
