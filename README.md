@@ -2,6 +2,7 @@
 Progetto per la parte di laboratorio del corso di Sistemi Operativi A.A. 2021-2022
 
 Per ora ci sono tre file .c:
+
 Compilare padre_treni.c, registro.c e movementAuthority.c con
 cc padre_treni.c -o padre_treni
 e
@@ -9,6 +10,11 @@ cc registro.c -o registro
 e
 cc movementAuthority.c -o movementAuthority
 ed eseguire ./movementAuthority, che a sua volta eseguirà ./padre_treni e ./registro con una exec
+
+// 16.05.2022
+Adesso è disponibile un makefile funzionante. Opzioni per la compilazione:
+- "make" per compilare i tre file .c, dopodichè lanciare il programma movementAuthority. Tutti i file creati durante l'esecuzione, come pipe e file binari, saranno creati nella current directory, rendendo il tutto abbastanza disordinato. Usare "make clean" per ripristinare la situazione iniziale
+- "make install" per compilare i tre file .c e organizzare la directory in modo che gli eseguibili vengano inseriti nella cartella bin, i file .c nella cartella source e si possano inoltre creare le cartelle nelle quali organizzare i file. 
 
 
 //DONE:
@@ -19,13 +25,11 @@ ed eseguire ./movementAuthority, che a sua volta eseguirà ./padre_treni e ./reg
 - aggiunto file registro.c che crea 2 strutture dati di tipo Tabella rappresentanti MAPPA1 e MAPPA2 e le popola. è facile accedere agli itinerari dei singoli treni quando richiesto con Mappa[1-2].T[1-5].
 
 - rendere il processo registro figlio del main, da eseguire con fork dopo la creazione delle pipe 
+- makefile
+- metodo per far richiedere dal treno il proprio itinerario al registro
 
 //TODO:
 1- DIFFERENZIARE PROCESSI FIGLI LANCIANDO PROCESSI CON EXEC 
-
-Problemi: 
-- è possibile creare l'eseguibile padre_treni nel makefile, mentre viene creato anche l'eseguibile movementAuthority?
-- per processi_treni occorre creare un file eseguibile ciascuno?
 
 2- CREARE PROCESSO REGISTRO CON STRUTTURA DATI PER MAPPA1 E MAPPA2
 Problemi:
@@ -34,8 +38,8 @@ Problemi:
 - come comunicarle ai treni? [PIPE]
 
 Si sceglie di far comunicare ai treni i rispettivi itinerari tramite Pipe con nome.
-Nel main saranno creati 5 file pipe, uno per ciascun treno. 
-Ogni treno invierà nella pipe il messaggio (esempio per treno 1): "T1".
+Nel main saranno creati 6 file pipe, uno per ciascun treno, per mandare il rispettivo itinerario dal registro al treno, e il sesto per far inviare le richieste di itinerario dai treni al registro. 
+Ogni treno invierà nella pipe itineraryRequestPipe il messaggio (esempio per treno 1): "T1".
 Registro riceverà il messaggio e preparerà l'itinerario per poterlo mandare al treno che lo ha richiesto.
 Metodi ausiliari per evitare duplicazione di codice: 
 - requestItinerary(int numeroTreno) che ogni treno chiamerà come primo metodo. Comportamento: invia il messaggio di richiesta al registro.
