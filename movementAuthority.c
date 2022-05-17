@@ -10,6 +10,14 @@ int main(int argc, char *argv[]) {
     }
     printf("Formato input corretto!\n");
 
+    char* mappa;
+    if(argc == 4) {
+        mappa = argv[3];
+    } else {
+        // altrimenti nel secondo
+        mappa = argv[2];
+    }
+
     //Crea pipe per invio richieste itinerario dei treni al registro
     // Treno apre in scrittura registro apre in lettura
     // ??? far mandare MAPPA1/2 a PADRE_TRENI ???
@@ -50,7 +58,7 @@ int main(int argc, char *argv[]) {
     }
     else if(PADRE_TRENI == 0) {
         //figlio: esegue processo padre_treni
-        execl("./padre_treni", "padre_treni",NULL);
+        execl("./padre_treni", "padre_treni", mappa, NULL);
     } else {
         // genitore: Qua è dove continua ad agire il main
 
@@ -58,35 +66,25 @@ int main(int argc, char *argv[]) {
         pid_t REGISTRO;
         REGISTRO = fork();
         if(REGISTRO < 0) {
-            perror("fork error");
+            fprintf(stderr, "Fork Failed\n");
             exit(EXIT_FAILURE);
         }
         else if(REGISTRO == 0) {
             // figlio: esegue processo registro
            
-            // se ci sono 3 argomenti MAPPA sta nel terzo
-            if(argc == 4) {
-                printf("Invio %s a registro\n", argv[3]);
-                execl("./registro", "registro", argv[3], NULL);
-            } else {
-                // altrimenti nel secondo
-                printf("Invio %s a registro\n", argv[2]);
-                execl("./registro", "registro", argv[2], NULL);
-            }
+            execl("./registro", "registro", mappa, NULL);
 
-            
         } else {
             // genitore: continua ad agire il main
             wait(NULL);
-            printf("[Genitore] pid = %d, pid del mio genitore = %d\n",getpid(), getppid());
-            printf("[Genitore] Mio figlio ha pid = %d\n", PADRE_TRENI);
+            
             sleep(1); // attende 1 secondo
-            exit(0);
+            
         }
         
     }
     // entrambi i processi
-    printf("PID %d termina.\n", getpid());
+    printf("Qua non dovrebbe terminare, se ho studiato bene le fork... però termina :(\n Per questo poi T1 resta orfano mi sa...\n");
     
     return 0;
 }

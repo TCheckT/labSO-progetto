@@ -27,7 +27,6 @@ install:
 	cc progetto/src/padre_treni.c -o progetto/bin/padre_treni
 
 clean:
-	mv progetto/src/* .
 	rm -f *.o
 	rm -f T*
 	rm -f movementAuthority registro padre_treni

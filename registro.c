@@ -9,9 +9,25 @@ int requestScanner(int fd, char *str) {
     return (n > 0); /* Return false if end-of-input */
 }
 
-int sendItinerary(char* train, char* mappa) {
-    printf("Sending %s itinerary to %s\n", mappa, train);
-    fflush(stdout);
+int sendItinerary(char* itinerario[]) {
+    int fd, messageLen, i; char message [100];
+    
+    do { /* Keep trying to open the file until successful */
+        fd = open ("T1registerPipe", O_WRONLY); /* Open named pipe for writing */
+        if (fd == -1) sleep (1); /* Try again in 1 second */
+    } while (fd == -1);
+
+    for (i = 0; i < sizeof(*itinerario) - 2; i++) { /* Send three messages */
+    /* Write message down pipe */
+        char* stop = itinerario[i];
+        messageLen = strlen(stop) + 1;
+        printf("sending %s through pipe\n", stop);
+        write(fd, stop, messageLen);
+
+        sleep (1); /* Pause a while */
+    }
+    close(fd);
+    return 0;
 }
 
 
@@ -34,6 +50,8 @@ int main(int argc, char *argv[]) {
     tappa6 = "S6";
     itinerario M1T1 = {tappa1, tappa2, tappa3, tappa4, tappa5, tappa6};
     
+    char* itinerarioT1[] = {"S1", "MA1", "MA2", "MA3", "MA8", "S6"};
+
     tappa1 = "S2";
     tappa2 = "MA5";
     tappa3 = "MA6";
@@ -144,10 +162,11 @@ int main(int argc, char *argv[]) {
     
     printf("waiting for requests...\n");
     sleep(5);
-    while(satisfiedRequests < 1 && requestScanner(fd, str)) {
-        printf("%s request for itinerary received\n", str);
-       
-        sendItinerary(str, argv[1]);
+    while(satisfiedRequests < 1) {
+        requestScanner(fd, str);
+        printf("Request for itinerary from %s received\n", str);
+
+        sendItinerary(itinerarioT1);
         satisfiedRequests++;
     }
     

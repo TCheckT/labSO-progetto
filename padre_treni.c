@@ -3,6 +3,25 @@
 int creaSegmenti(); 
 char * genName(int);
 
+int requestScanner(int fd, char *str) { 
+    int n;
+    printf("Arrivo qui?\n");
+    do { /* Read characters until ’\0’ or end-of-input */
+        n = read (fd, str, 1); /* Read one character */
+        printf("Mi blocco qui?\n");
+        sleep(2);
+    } while (n > 0 && *str++ != 0);
+    return (n > 0); /* Return false if end-of-input */
+}
+
+int readSteps(int fd, char *str){
+    int n;
+    do {
+        n = read(fd, str, 1);
+    } while(n > 0 && *str++ != '\0');
+    return (n > 0);
+}
+
 int main() {
     // PADRE_TRENI crea i segmenti di binario
     if(creaSegmenti()!=0)
@@ -18,15 +37,35 @@ int main() {
     }
     else if(T1 == 0) {
         // treno T1
-        int fd, messageLen, i; char message [100];
+        int fd, messageLen; char message [100];
         sprintf(message,"T1"); /* Prepare message */
         messageLen = strlen (message) + 1;
         do { /* Keep trying to open the file until successful */
             fd = open ("itineraryRequestPipe", O_WRONLY); /* Open named pipe for writing */
             if (fd == -1) sleep (1); /* Try again in 1 second */
         } while (fd == -1);
-
+        // invio richiesta
         write (fd, message, messageLen);
+
+        // T1 riceve itinerario
+        int fd2;
+        char received[100];
+        char* itinerary[6];
+        int i = 0;
+        fd2 = open("T1registerPipe", O_RDONLY);
+
+        while(readSteps(fd2, received)) {
+            //salvare le tappe in una propria struttura dati
+            printf("saving %s into T1\n", received);
+            itinerary[i] =  received;
+            i++;
+        }
+        close(fd2);
+        unlink("T1registerPipe");
+
+        // QUA QUA QUA QUA QUA QUA
+        printf("%s, %s, %s, %s, %s, %s\n", itinerary[0], itinerary[1], itinerary[2], itinerary[3], itinerary[4], itinerary[5]);
+
         sleep (3);
         routineTreno(1); 
         exit(EXIT_SUCCESS);
@@ -105,4 +144,5 @@ int creaSegmenti() {
 
 int routineTreno(int numeroTreno) {
     printf("treno T%d ready\n", numeroTreno);
+    return 0;
 }
