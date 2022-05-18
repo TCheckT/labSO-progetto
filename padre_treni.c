@@ -28,7 +28,7 @@ int main() {
         // T1 riceve itinerario
         int T1rp_fd;
         char tappaRicevuta[100];
-        char * itinerary[6][5];
+        char itinerary[6][5];
         int i = 0;
         T1rp_fd = open("T1registerPipe", O_RDONLY);
 
@@ -41,8 +41,8 @@ int main() {
         close(T1rp_fd);
         unlink("T1registerPipe");
 
-        for (int i = 0; i < 6; ++i) printf("%s\t", itinerary[i]);
-        
+        printf("T1:");
+        for (int i = 0; i < 6; ++i) printf("->%s", itinerary[i]);
         printf("\n");
 
         sleep (3);
