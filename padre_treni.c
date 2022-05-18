@@ -28,21 +28,22 @@ int main() {
         // T1 riceve itinerario
         int T1rp_fd;
         char tappaRicevuta[100];
-        char* itinerary[6];
+        char * itinerary[6][5];
         int i = 0;
         T1rp_fd = open("T1registerPipe", O_RDONLY);
 
         while(riceviTappe(T1rp_fd, tappaRicevuta)) {
             //salvare le tappe in una propria struttura dati
             printf("Saving %s into T1\n", tappaRicevuta);
-            itinerary[i] =  tappaRicevuta;
+            strcpy(itinerary[i], tappaRicevuta);
             i++;
         }
         close(T1rp_fd);
         unlink("T1registerPipe");
 
-        // QUA QUA QUA QUA QUA QUA
-        printf("%s, %s, %s, %s, %s, %s\n", itinerary[0], itinerary[1], itinerary[2], itinerary[3], itinerary[4], itinerary[5]);
+        for (int i = 0; i < 6; ++i) printf("%s\t", itinerary[i]);
+        
+        printf("\n");
 
         sleep (3);
         routineTreno(1); 
