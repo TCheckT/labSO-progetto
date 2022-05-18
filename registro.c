@@ -3,22 +3,38 @@
 int main(int argc, char *argv[]) {
     printf("Ricevo %s da movementAuthority\n", argv[1]);
     
-    char * itinerarioT1[] = {"S1", "MA1", "MA2", "MA3", "MA8", "S6"};
-    char * itinerarioT2[] = {"S2", "MA5", "MA6", "MA7", "MA3", "MA8", "S6"};
-    char * itinerarioT3[] = {"S7", "MA13", "MA12", "MA11", "MA10", "MA9", "S3"};
-    char * itinerarioT4[] = {"S4", "MA14", "MA15", "MA16", "MA12", "S8"};
+    char* MAPPA = argv[1];
+    int numeroTreni;
+    if (strcmp(MAPPA, "MAPPA1") == 0) {
+        numeroTreni = 4;
+    } else if (strcmp(MAPPA, "MAPPA2") == 0) {
+        numeroTreni = 5;
+    } else {
+        printf("Error: MAPPA not recognized\n");
+    }
+    
+    char * M1itinerarioT1[] = {"S1", "MA1", "MA2", "MA3", "MA8", "S6"};
+    char * M1itinerarioT2[] = {"S2", "MA5", "MA6", "MA7", "MA3", "MA8", "S6"};
+    char * M1itinerarioT3[] = {"S7", "MA13", "MA12", "MA11", "MA10", "MA9", "S3"};
+    char * M1itinerarioT4[] = {"S4", "MA14", "MA15", "MA16", "MA12", "S8"};
+    char * M1itinerarioT5[] = {};
 
-    char * itinerarioT5[] = {};
+
+    char * M2itinerarioT1[] = {"S2", "MA5", "MA7", "MA3", "MA8", "S6"};
+    char * M2itinerarioT2[] = {"S3", "MA9", "MA10", "MA11", "MA12", "S8"};
+    char * M2itinerarioT3[] = {"S4", "MA14", "MA15", "MA16", "MA12", "S8"};
+    char * M2itinerarioT4[] = {"S6", "MA8", "MA3", "MA2", "MA1", "S1"};
+    char * M2itinerarioT5[] = {"S5", "MA4", "MA3", "MA2", "MA1", "S1"};
+    
+    
     // Dopo aver creato le tabelle il processo registro può connettersi in lettura alla PIPE
     // itineraryRequestPipe, in attesa di ricevere richieste di itinerari.
     int irp_fd;
     char richiesta[100];
     int richiesteSoddisfatte = 0;
 
-   
-
     sleep(2);
-    while(richiesteSoddisfatte < 4) { // se MAPPA1 < 4 se MAPPA2 < 5
+    while(richiesteSoddisfatte < numeroTreni) { // se MAPPA1 < 4 se MAPPA2 < 5
         
         //Crea pipe per invio richieste itinerario dei treni al registro
         // Treno apre in scrittura registro apre in lettura
@@ -36,12 +52,23 @@ int main(int argc, char *argv[]) {
         i = assegnaItinerario(richiesta);
         printf("sto per inviare a T%d\n", i);
 
-        if(i==1) inviaItinerario(itinerarioT1, 1, SIZEOF(itinerarioT1));
-        else if(i==2) inviaItinerario(itinerarioT2, 2, SIZEOF(itinerarioT2));
-        else if(i==3) inviaItinerario(itinerarioT3, 3, SIZEOF(itinerarioT3));
-        else if(i==4) inviaItinerario(itinerarioT4, 4, SIZEOF(itinerarioT4));
-        else if(i==5) inviaItinerario(itinerarioT5, 5, SIZEOF(itinerarioT5));
-        else printf("Errore:richiesta inaspettata");
+        if(strcmp(MAPPA, "MAPPA1") == 0) {
+            if(i==1) inviaItinerario(M1itinerarioT1, 1, SIZEOF(M1itinerarioT1));
+            else if(i==2) inviaItinerario(M1itinerarioT2, 2, SIZEOF(M1itinerarioT2));
+            else if(i==3) inviaItinerario(M1itinerarioT3, 3, SIZEOF(M1itinerarioT3));
+            else if(i==4) inviaItinerario(M1itinerarioT4, 4, SIZEOF(M1itinerarioT4));
+            else if(i==5) inviaItinerario(M1itinerarioT5, 5, SIZEOF(M1itinerarioT5));
+            else printf("Errore:richiesta inaspettata");
+        } else if (strcmp(MAPPA, "MAPPA2") == 0) {
+            if(i==1) inviaItinerario(M2itinerarioT1, 1, SIZEOF(M2itinerarioT1));
+            else if(i==2) inviaItinerario(M2itinerarioT2, 2, SIZEOF(M2itinerarioT2));
+            else if(i==3) inviaItinerario(M2itinerarioT3, 3, SIZEOF(M2itinerarioT3));
+            else if(i==4) inviaItinerario(M2itinerarioT4, 4, SIZEOF(M2itinerarioT4));
+            else if(i==5) inviaItinerario(M2itinerarioT5, 5, SIZEOF(M2itinerarioT5));
+            else printf("Errore:richiesta inaspettata");
+        } else {
+            printf("Error: MAPPA not recognized\n");
+        }
 
         richiesteSoddisfatte++;
 
@@ -49,7 +76,6 @@ int main(int argc, char *argv[]) {
         close(irp_fd);
         unlink("itineraryRequestPipe");
     }
-    
     
     exit(EXIT_SUCCESS);
     return 0;
@@ -100,121 +126,3 @@ int assegnaItinerario(char * request){
     else if (strcmp(request, "T5") == 0)    return 5;
     else                                    return -1;  
 }
-
-/*
- char* tappa1; 
-    char* tappa2;
-    char* tappa3;
-    char* tappa4;
-    char* tappa5;
-    char* tappa6;
-    char* tappa7;
-
-    // Popolamento MAPPA1
-    tappa1 = "S1";
-    tappa2 = "MA1";
-    tappa3 = "MA2";
-    tappa4 = "MA3";
-    tappa5 = "MA8";
-    tappa6 = "S6";
-
-    itinerario M1T1 = {tappa1, tappa2, tappa3, tappa4, tappa5, tappa6};
-
-    tappa1 = "S2";
-    tappa2 = "MA5";
-    tappa3 = "MA6";
-    tappa4 = "MA7";
-    tappa5 = "MA3";
-    tappa6 = "MA8";
-    tappa7 = "S6";
-    itinerario M1T2 = {tappa1, tappa2, tappa3, tappa4, tappa5, tappa6, tappa7};
-    
-    tappa1 = "S7";
-    tappa2 = "MA13";
-    tappa3 = "MA12";
-    tappa4 = "MA11";
-    tappa5 = "MA10";
-    tappa6 = "MA9";
-    tappa7 = "S3";
-    itinerario M1T3 = {tappa1, tappa2, tappa3, tappa4, tappa5, tappa6, tappa7};
-    
-    tappa1 = "S4";
-    tappa2 = "MA14";
-    tappa3 = "MA15";
-    tappa4 = "MA16";
-    tappa5 = "MA12";
-    tappa6 = "S8";
-    itinerario M1T4 = {tappa1, tappa2, tappa3, tappa4, tappa5, tappa6, tappa7};
-    
-    itinerario M1T5 = {};
-
-     struct Tabella Mappa1 = {M1T1, M1T2, M1T3, M1T4, M1T5};
-
-    
-    printf("MAPPA1:\n");
-    printf("T4 tappa6: %s\n", M1T4[5]);
-    printf("T3 tappa1: %s\n", M1T3[0]);
-    printf("T2 tappa3: %s\n", M1T2[2]);
-    printf("T1 tappa5: %s\n", M1T1[4]);
-    
-    printf("T4 tappa 4: %s\n", Mappa1.T4[3]);
-    
-    printf("T1 tappa 3: %s\n", Mappa1.T3[2]);
-    
-
-    // popolamento MAPPA2
-    tappa1 = "S2";
-    tappa2 = "MA5";
-    tappa3 = "MA6";
-    tappa4 = "MA7";
-    tappa5 = "MA3";
-    tappa6 = "MA8";
-    tappa7 = "S6";
-    itinerario M2T1 = {tappa1, tappa2, tappa3, tappa4, tappa5, tappa6, tappa7};
-
-    tappa1 = "S3";
-    tappa2 = "MA9";
-    tappa3 = "MA10";
-    tappa4 = "MA11";
-    tappa5 = "MA12";
-    tappa6 = "S8";
-    itinerario M2T2 = {tappa1, tappa2, tappa3, tappa4, tappa5, tappa6};
-
-    tappa1 = "S4";
-    tappa2 = "MA14";
-    tappa3 = "MA15";
-    tappa4 = "MA16";
-    tappa5 = "MA12";
-    tappa6 = "S8";
-    itinerario M2T3 = {tappa1, tappa2, tappa3, tappa4, tappa5, tappa6};
-    
-    tappa1 = "S6";
-    tappa2 = "MA8";
-    tappa3 = "MA3";
-    tappa4 = "MA2";
-    tappa5 = "MA1";
-    tappa6 = "S1";
-    itinerario M2T4 = {tappa1, tappa2, tappa3, tappa4, tappa5, tappa6};
-
-    tappa1 = "S5";
-    tappa2 = "MA4";
-    tappa3 = "MA3";
-    tappa4 = "MA2";
-    tappa5 = "MA1";
-    tappa6 = "S1";
-    itinerario M2T5 = {tappa1, tappa2, tappa3, tappa4, tappa5, tappa6};
-    
-    struct Tabella Mappa2 = {M2T1, M2T2, M2T3, M2T4, M2T5};
-
-    printf("MAPPA2:\n");
-    printf("T4 tappa6: %s\n", M2T4[5]);
-    printf("T3 tappa1: %s\n", M2T3[0]);
-    printf("T2 tappa3: %s\n", M2T2[2]);
-    printf("T1 tappa5: %s\n", M2T1[4]);
-    
-    printf("T4 tappa 4: %s\n", Mappa2.T4[3]);
-    
-    printf("T1 tappa 3: %s\n", Mappa2.T3[2]);
-    printf("T1 tappa 3: %s\n", M2T1[2]);
-
-*/

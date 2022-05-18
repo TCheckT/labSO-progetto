@@ -16,40 +16,6 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
     else if(T1 == 0) {
-       /*
-        // treno T1
-        int irp_fd, lunghezzaRichiesta; char richiesta [100];
-        sprintf(richiesta,"T1"); // Prepara richiesta 
-        lunghezzaRichiesta = strlen (richiesta) + 1;
-        do { // Prova ad aprire la pipe fino a che non ha successo 
-            irp_fd = open ("itineraryRequestPipe", O_WRONLY); // Apre la pipe con nome
-            if (irp_fd == -1) sleep (1); // Prova ancora dopo un secondo se fallisce
-        } while (irp_fd == -1);
-        // invio richiesta
-        write (irp_fd, richiesta, lunghezzaRichiesta);
-
-        // T1 riceve itinerario
-        int T1rp_fd;
-        char tappaRicevuta[100];
-        char itinerary[6][5];
-        int i = 0;
-        T1rp_fd = open("T1registerPipe", O_RDONLY);
-
-        while(riceviTappe(T1rp_fd, tappaRicevuta)) {
-            //salvare le tappe in una propria struttura dati
-            printf("Saving %s into T1\n", tappaRicevuta);
-            strcpy(itinerary[i], tappaRicevuta);
-            i++;
-        }
-        close(T1rp_fd);
-        unlink("T1registerPipe");
-
-        printf("T1:");
-        for (int i = 0; i < 6; ++i) printf("->%s", itinerary[i]);
-        printf("\n");
-        
-       */
-        
         routineTreno(1); 
         exit(EXIT_SUCCESS);
     }
@@ -170,45 +136,7 @@ int routineTreno(int numeroTreno) {
     printf("treno T%d ready\n", numeroTreno);
     printf("\n");
 
-/*
-    // creazione di una variabile che conterrà il nome del treno
-    char * nomeTreno;
-    sprintf(nomeTreno, "T%d", numeroTreno);
-    
-    int irp_fd, lunghezzaRichiesta; char richiesta [100];
-    strcpy(richiesta,nomeTreno); // Prepara richiesta 
-    lunghezzaRichiesta = strlen (richiesta) + 1;
-    do { // Prova ad aprire la pipe fino a che non ha successo 
-        irp_fd = open ("itineraryRequestPipe", O_WRONLY); // Apre la pipe con nome
-        if (irp_fd == -1) sleep (1); // Prova ancora dopo un secondo se fallisce
-    } while (irp_fd == -1);
-    // invio richiesta
-    write (irp_fd, richiesta, lunghezzaRichiesta);
 
-    // T1 riceve itinerario
-    int rp_fd;
-    char tappaRicevuta[100];
-    char itinerary[6][5];
-    int i = 0;
-    char * nomePipe;
-
-    sprintf(nomePipe,"%sregisterPipe",nomeTreno);
-
-    rp_fd = open(nomePipe, O_RDONLY);
-
-    while(riceviTappe(rp_fd, tappaRicevuta)) {
-        //salvare le tappe in una propria struttura dati
-        printf("Saving %s into %s\n", tappaRicevuta, nomeTreno);
-        strcpy(itinerary[i], tappaRicevuta);
-        i++;
-    }
-    close(rp_fd);
-    unlink(nomePipe);
-
-    printf("%s:", nomeTreno);
-    for (int i = 0; i < 6; ++i) printf("->%s", itinerary[i]);
-    printf("\n");
-*/
     return 0;
 }
 
