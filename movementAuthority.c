@@ -3,24 +3,24 @@
 
 int main(int argc, char *argv[]) {
 
-    /* inputCheck controlla che gli argomenti passati 
+    /* controlloInput controlla che gli argomenti passati 
        in input in argv siano del giusto formato */
-    if(inputCheck(argc, argv) != 0) {
+    if(controlloInput(argc, argv) != 0) {
         return 0;
     }
     printf("Formato input corretto!\n");
 
-    char* mappa;
+    char* MAPPA;
+
     if(argc == 4) {
-        mappa = argv[3];
+        MAPPA = argv[3];
     } else {
         // altrimenti nel secondo
-        mappa = argv[2];
+        MAPPA = argv[2];
     }
 
     //Crea pipe per invio richieste itinerario dei treni al registro
     // Treno apre in scrittura registro apre in lettura
-    // ??? far mandare MAPPA1/2 a PADRE_TRENI ???
     unlink("itineraryRequestPipe");
     mknod("itineraryRequestPipe", S_IFIFO, 0);
     chmod("itineraryRequestPipe", 0660);
@@ -47,20 +47,20 @@ int main(int argc, char *argv[]) {
     mknod("T5registerPipe", S_IFIFO, 0);
     chmod("T5registerPipe", 0660);
 
-    //A questo punto è necessario creare il processo PADRE_TRENI con una fork()
+    //crea il processo PADRE_TRENI con una fork()
 
     pid_t PADRE_TRENI;
 
     PADRE_TRENI = fork();
     if(PADRE_TRENI < 0) {
-        perror("fork error");
-        exit(-1);
+        fprintf(stderr, "Fork Failed\n");
+        exit(EXIT_FAILURE);
     }
     else if(PADRE_TRENI == 0) {
         //figlio: esegue processo padre_treni
-        execl("./padre_treni", "padre_treni", mappa, NULL);
+        execl("./padre_treni", "padre_treni", MAPPA, NULL);
     } else {
-        // genitore: Qua è dove continua ad agire il main
+        // genitore: Qua è dove continua movementAuthority
 
         // altra fork per lanciare il processo registro
         pid_t REGISTRO;
@@ -71,26 +71,26 @@ int main(int argc, char *argv[]) {
         }
         else if(REGISTRO == 0) {
             // figlio: esegue processo registro
-           
-            execl("./registro", "registro", mappa, NULL);
-
+            execl("./registro", "registro", MAPPA, NULL);
         } else {
-            // genitore: continua ad agire il main
+            // genitore: Qua è dove continua movementAuthority
             wait(NULL);
             
             sleep(1); // attende 1 secondo
             
         }
-        
+        wait(NULL);
     }
+    wait(NULL);
     // entrambi i processi
-    printf("Qua non dovrebbe terminare, se ho studiato bene le fork... però termina :(\n Per questo poi T1 resta orfano mi sa...\n");
+
+    printf("END OF PROGRAM\n");
     
     return 0;
 }
 
 
-int inputCheck(int argc, char *argv[]) {
+int controlloInput(int argc, char *argv[]) {
 
     if(argc < 3 || argc > 4) {
         printf("Sono attesi almeno 2 parametri, al più 3.\n");

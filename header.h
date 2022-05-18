@@ -18,7 +18,16 @@ struct Tabella {
     char** T4;
     char** T5;
 };
-
-int inputCheck(int argc, char *argv[]);
+//movementAuthority
+int controlloInput(int argc, char *argv[]);
 int creaSegmenti();
+char * genName(int);
+
+//padre_treni
+int riceviTappe(int fd, char *str);
 int routineTreno(int numeroTreno);
+
+//registro
+int attesaRichieste(int fd, char *str);
+int inviaItinerario(char* itinerario[]);
+

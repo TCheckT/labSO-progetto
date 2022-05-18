@@ -1,7 +1,40 @@
 #include "header.h"
 
+
+
+
+int main(int argc, char *argv[]) {
+    printf("Ricevo %s da movementAuthority\n", argv[1]);
+    
+    char* itinerarioT1[] = {"S1", "MA1", "MA2", "MA3", "MA8", "S6"};
+    char* itinerarioT2[] = {"S2", "MA5", "MA6", "MA7", "MA3", "MA8", "S6"};
+    char* itinerarioT3[] = {"S7", "MA13", "MA12", "MA11", "MA10", "MA9", "S3"};
+    char* itinerarioT4[] = {"S4", "MA14", "MA15", "MA16", "MA12", "S8"};
+    
+    // Dopo aver creato le tabelle il processo registro può connettersi in lettura alla PIPE
+    // itineraryRequestPipe, in attesa di ricevere richieste di itinerari.
+    int irp_fd;
+    char richiesta[100];
+    int richiesteSoddisfatte = 0;
+    irp_fd = open("itineraryRequestPipe", O_RDONLY);
+
+    sleep(2);
+    while(richiesteSoddisfatte < 1) {
+        printf("waiting for requests...\n");
+
+        attesaRichieste(irp_fd, richiesta);
+        printf("Request for itinerary from %s received\n", richiesta);
+
+        inviaItinerario(itinerarioT1);
+        richiesteSoddisfatte++;
+    }
+    
+    exit(EXIT_SUCCESS);
+    return 0;
+}
+
 // metodo per leggere ripetutamente da pipe e, se richiesta rilevata, chiamare metodo per inviare itinerario
-int requestScanner(int fd, char *str) { 
+int attesaRichieste(int fd, char *str) { 
     int n;
     do { /* Read characters until ’\0’ or end-of-input */
         n = read (fd, str, 1); /* Read one character */
@@ -9,31 +42,29 @@ int requestScanner(int fd, char *str) {
     return (n > 0); /* Return false if end-of-input */
 }
 
-int sendItinerary(char* itinerario[]) {
-    int fd, messageLen, i; char message [100];
+int inviaItinerario(char* itinerario[]) {
+    int sendingToTrain_fd, lunghezzaTappa, i;// char message [100];
     
-    do { /* Keep trying to open the file until successful */
-        fd = open ("T1registerPipe", O_WRONLY); /* Open named pipe for writing */
-        if (fd == -1) sleep (1); /* Try again in 1 second */
-    } while (fd == -1);
+    do { /* Continua a provare ad aprire la pipe */
+        sendingToTrain_fd = open ("T1registerPipe", O_WRONLY); /* Apre pipe in scrittura */  //HARDCODE da rimuovere, selezionare nome pipe
+        if (sendingToTrain_fd == -1) sleep (1); /* Prova ancora dopo 1 secondo */
+    } while (sendingToTrain_fd == -1);
 
-    for (i = 0; i < sizeof(*itinerario) - 2; i++) { /* Send three messages */
-    /* Write message down pipe */
-        char* stop = itinerario[i];
-        messageLen = strlen(stop) + 1;
-        printf("sending %s through pipe\n", stop);
-        write(fd, stop, messageLen);
+    for (i = 0; i < sizeof(*itinerario) - 2; i++) { /* Invia tutte le tappe */
+    /* Scrive nella pipe */
+        char* tappa = itinerario[i];
+        lunghezzaTappa = strlen(tappa) + 1;
+        printf("sending %s through pipe\n", tappa);
+        write(sendingToTrain_fd, tappa, lunghezzaTappa);
 
         sleep (1); /* Pause a while */
     }
-    close(fd);
+    close(sendingToTrain_fd);
     return 0;
 }
 
-
-int main(int argc, char *argv[]) {
-    printf("Ricevo %s da movementAuthority\n", argv[1]);
-    char* tappa1; 
+/*
+ char* tappa1; 
     char* tappa2;
     char* tappa3;
     char* tappa4;
@@ -48,9 +79,8 @@ int main(int argc, char *argv[]) {
     tappa4 = "MA3";
     tappa5 = "MA8";
     tappa6 = "S6";
+
     itinerario M1T1 = {tappa1, tappa2, tappa3, tappa4, tappa5, tappa6};
-    
-    char* itinerarioT1[] = {"S1", "MA1", "MA2", "MA3", "MA8", "S6"};
 
     tappa1 = "S2";
     tappa2 = "MA5";
@@ -82,8 +112,7 @@ int main(int argc, char *argv[]) {
 
      struct Tabella Mappa1 = {M1T1, M1T2, M1T3, M1T4, M1T5};
 
-    /* DEBUG printf: */
-    /*
+    
     printf("MAPPA1:\n");
     printf("T4 tappa6: %s\n", M1T4[5]);
     printf("T3 tappa1: %s\n", M1T3[0]);
@@ -93,7 +122,7 @@ int main(int argc, char *argv[]) {
     printf("T4 tappa 4: %s\n", Mappa1.T4[3]);
     
     printf("T1 tappa 3: %s\n", Mappa1.T3[2]);
-    */
+    
 
     // popolamento MAPPA2
     tappa1 = "S2";
@@ -139,8 +168,6 @@ int main(int argc, char *argv[]) {
     
     struct Tabella Mappa2 = {M2T1, M2T2, M2T3, M2T4, M2T5};
 
-    /* DEBUG printf: */
-    /*
     printf("MAPPA2:\n");
     printf("T4 tappa6: %s\n", M2T4[5]);
     printf("T3 tappa1: %s\n", M2T3[0]);
@@ -151,25 +178,5 @@ int main(int argc, char *argv[]) {
     
     printf("T1 tappa 3: %s\n", Mappa2.T3[2]);
     printf("T1 tappa 3: %s\n", M2T1[2]);
-    */
-    // Dopo aver creato le tabelle il processo registro può connettersi in lettura alla PIPE
-    // itineraryRequestPipe, in attesa di ricevere richieste di itinerari.
-    int fd;
-    char str[100];
-    int satisfiedRequests = 0;
-    fd = open("itineraryRequestPipe", O_RDONLY);
 
-    
-    printf("waiting for requests...\n");
-    sleep(5);
-    while(satisfiedRequests < 1) {
-        requestScanner(fd, str);
-        printf("Request for itinerary from %s received\n", str);
-
-        sendItinerary(itinerarioT1);
-        satisfiedRequests++;
-    }
-    
-    exit(EXIT_SUCCESS);
-    return 0;
-}
+*/
