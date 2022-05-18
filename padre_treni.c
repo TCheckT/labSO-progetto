@@ -1,6 +1,8 @@
 #include "header.h"
 
-int main() {
+int main(int argc, char *argv[]) {
+
+    char* MAPPA = argv[1];
     // PADRE_TRENI crea i segmenti di binario
     if(creaSegmenti()!=0)
         perror("errore creazione segmenti di binario\n");
@@ -14,7 +16,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
     else if(T1 == 0) {
-//        /*
+       /*
         // treno T1
         int irp_fd, lunghezzaRichiesta; char richiesta [100];
         sprintf(richiesta,"T1"); // Prepara richiesta 
@@ -46,7 +48,7 @@ int main() {
         for (int i = 0; i < 6; ++i) printf("->%s", itinerary[i]);
         printf("\n");
         
-//        */
+       */
         
         routineTreno(1); 
         exit(EXIT_SUCCESS);
@@ -89,15 +91,17 @@ int main() {
     }
     wait(NULL);
 
-    T5 = fork();
-    if(T5 < 0) {
-        perror("fork error");
-        exit(EXIT_FAILURE);
-    }
-    else if(T5 == 0) {
-        // treno T5
-        routineTreno(5); 
-        exit(EXIT_SUCCESS);
+    if(strcmp(MAPPA, "MAPPA2") == 0) {
+        T5 = fork();
+        if(T5 < 0) {
+            perror("fork error");
+            exit(EXIT_FAILURE);
+        }
+        else if(T5 == 0) {
+            // treno T5
+            routineTreno(5); 
+            exit(EXIT_SUCCESS);
+        }
     }
     wait(NULL);
     exit(EXIT_SUCCESS);
@@ -129,7 +133,43 @@ int creaSegmenti() {
 }
 
 int routineTreno(int numeroTreno) {
+    
+    int irp_fd, lunghezzaRichiesta; char richiesta [100];
+    sprintf(richiesta,"T%d", numeroTreno); // Prepara richiesta 
+    lunghezzaRichiesta = strlen (richiesta) + 1;
+
+    do { // Prova ad aprire la pipe fino a che non ha successo 
+        irp_fd = open ("itineraryRequestPipe", O_WRONLY); // Apre la pipe con nome
+        if (irp_fd == -1) sleep (1); // Prova ancora dopo un secondo se fallisce
+    } while (irp_fd == -1);
+
+    // invio richiesta
+    write (irp_fd, richiesta, lunghezzaRichiesta);
+
+    // Treno riceve itinerario
+    int Trp_fd;
+    char tappaRicevuta[100];
+    char itinerario[10][5];
+    int i = 0;
+    char nomePipe[20];
+    sprintf(nomePipe, "T%dregisterPipe", numeroTreno);
+    Trp_fd = open(nomePipe, O_RDONLY);
+
+    while(riceviTappe(Trp_fd, tappaRicevuta)) {
+        //salvare le tappe in una propria struttura dati
+        printf("Saving %s into T%d\n", tappaRicevuta, numeroTreno);
+        strcpy(itinerario[i], tappaRicevuta);
+        i++;
+    }
+    close(Trp_fd);
+    unlink(nomePipe);
+
+    printf("T%d:", numeroTreno);
+    for (int j = 0; j < i; ++j) printf("->%s", itinerario[j]);
+    printf("\n");
     printf("treno T%d ready\n", numeroTreno);
+    printf("\n");
+
 /*
     // creazione di una variabile che conterrà il nome del treno
     char * nomeTreno;

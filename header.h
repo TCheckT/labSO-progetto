@@ -9,6 +9,9 @@
 #include <sys/stat.h> /* For S_IFIFO */
 #include <fcntl.h>
 
+#define SIZEOF(a) ( sizeof a / sizeof a[0] )
+
+
 typedef char* itinerario[10]; 
 
 struct Tabella {
@@ -29,5 +32,5 @@ int routineTreno(int numeroTreno);
 
 //registro
 int attesaRichieste(int fd, char *str);
-int inviaItinerario(char* itinerario[], int);
+int inviaItinerario(char* itinerario[], int numeroTreno, int lunghezzaItinerario);
 int assegnaItinerario(char[]);

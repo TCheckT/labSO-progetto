@@ -18,12 +18,6 @@ int main(int argc, char *argv[]) {
         MAPPA = argv[2];
     }
 
-    //Crea pipe per invio richieste itinerario dei treni al registro
-    // Treno apre in scrittura registro apre in lettura
-    unlink("itineraryRequestPipe");
-    mknod("itineraryRequestPipe", S_IFIFO, 0);
-    chmod("itineraryRequestPipe", 0660);
-    
     //Crea pipe per invio itinerari dal registro ai treni
     // Treno apre in lettura registro apre in scrittura
     unlink("T1registerPipe");
