@@ -1,6 +1,5 @@
 #include "header.h"
 
-
 int main(int argc, char *argv[]) {
 
     /* controlloInput controlla che gli argomenti passati 

@@ -1,31 +1,38 @@
 #include "header.h"
 
-
-
-
 int main(int argc, char *argv[]) {
     printf("Ricevo %s da movementAuthority\n", argv[1]);
     
-    char* itinerarioT1[] = {"S1", "MA1", "MA2", "MA3", "MA8", "S6"};
-    char* itinerarioT2[] = {"S2", "MA5", "MA6", "MA7", "MA3", "MA8", "S6"};
-    char* itinerarioT3[] = {"S7", "MA13", "MA12", "MA11", "MA10", "MA9", "S3"};
-    char* itinerarioT4[] = {"S4", "MA14", "MA15", "MA16", "MA12", "S8"};
-    
+    char * itinerarioT1[] = {"S1", "MA1", "MA2", "MA3", "MA8", "S6"};
+    char * itinerarioT2[] = {"S2", "MA5", "MA6", "MA7", "MA3", "MA8", "S6"};
+    char * itinerarioT3[] = {"S7", "MA13", "MA12", "MA11", "MA10", "MA9", "S3"};
+    char * itinerarioT4[] = {"S4", "MA14", "MA15", "MA16", "MA12", "S8"};
+
     // Dopo aver creato le tabelle il processo registro può connettersi in lettura alla PIPE
     // itineraryRequestPipe, in attesa di ricevere richieste di itinerari.
     int irp_fd;
     char richiesta[100];
     int richiesteSoddisfatte = 0;
+
     irp_fd = open("itineraryRequestPipe", O_RDONLY);
 
     sleep(2);
-    while(richiesteSoddisfatte < 1) {
+    while(richiesteSoddisfatte <1) {
         printf("waiting for requests...\n");
 
         attesaRichieste(irp_fd, richiesta);
         printf("Request for itinerary from %s received\n", richiesta);
 
-        inviaItinerario(itinerarioT1);
+        int i;
+        switch(i = assegnaItinerario(richiesta)){
+            // to revert: delete the switch and only leave the following line, without "case 1:"
+            case 1: inviaItinerario(itinerarioT1,i);
+            case 2: inviaItinerario(itinerarioT2,i);
+            case 3: inviaItinerario(itinerarioT3,i);
+            case 4: inviaItinerario(itinerarioT4,i);
+            default: printf("Errore: richiesta inaspettata");
+        }
+
         richiesteSoddisfatte++;
     }
     
@@ -42,11 +49,14 @@ int attesaRichieste(int fd, char *str) {
     return (n > 0); /* Return false if end-of-input */
 }
 
-int inviaItinerario(char* itinerario[]) {
+int inviaItinerario(char* itinerario[], int r) {
     int sendingToTrain_fd, lunghezzaTappa, i;// char message [100];
+
+    char * nomePipe;
+    sprintf(nomePipe,"%dregisterPipe",r);
     
     do { /* Continua a provare ad aprire la pipe */
-        sendingToTrain_fd = open ("T1registerPipe", O_WRONLY); /* Apre pipe in scrittura */  //HARDCODE da rimuovere, selezionare nome pipe
+        sendingToTrain_fd = open (nomePipe, O_WRONLY); /* Apre pipe in scrittura */  //HARDCODE da rimuovere, selezionare nome pipe
         if (sendingToTrain_fd == -1) sleep (1); /* Prova ancora dopo 1 secondo */
     } while (sendingToTrain_fd == -1);
 
@@ -61,6 +71,15 @@ int inviaItinerario(char* itinerario[]) {
     }
     close(sendingToTrain_fd);
     return 0;
+}
+
+int assegnaItinerario(char * request){
+    if(strcmp(request, "T1"))       return 1;
+    else if (strcmp(request, "T2")) return 2;
+    else if (strcmp(request, "T3")) return 3;
+    else if (strcmp(request, "T4")) return 4;
+    else if (strcmp(request, "T5")) return 5;
+    else return -1;
 }
 
 /*

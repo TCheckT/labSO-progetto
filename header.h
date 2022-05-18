@@ -29,5 +29,5 @@ int routineTreno(int numeroTreno);
 
 //registro
 int attesaRichieste(int fd, char *str);
-int inviaItinerario(char* itinerario[]);
-
+int inviaItinerario(char* itinerario[], int);
+int assegnaItinerario(char[]);
