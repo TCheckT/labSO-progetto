@@ -8,67 +8,25 @@ int main(int argc, char *argv[]) {
         perror("errore creazione segmenti di binario\n");
 
     // PADRE_TRENI genera processi figli PROCESSI_TRENI T1-5
-    pid_t T1, T2, T3, T4, T5;
+    //pid_t T1, T2, T3, T4, T5;
 
-    T1 = fork();
-    if(T1 < 0) {
-        fprintf(stderr, "Fork Failed\n");
-        exit(EXIT_FAILURE);
-    }
-    else if(T1 == 0) {
-        routineTreno(1); 
-        exit(EXIT_SUCCESS);
-    }
-    wait(NULL);
+    pid_t treni[5];
 
-    T2 = fork();
-    if(T2 < 0) {
-        perror("fork error");
-        exit(EXIT_FAILURE);
-    }
-    else if(T2 == 0) {
-        // treno T2
-        routineTreno(2); 
-        exit(EXIT_SUCCESS);
-    }
-    wait(NULL);
-
-    T3 = fork();
-    if(T3 < 0) {
-        perror("fork error");
-        exit(EXIT_FAILURE);
-    }
-    else if(T3 == 0) {
-        // treno T3
-        routineTreno(3); 
-        exit(EXIT_SUCCESS);
-    }
-    wait(NULL);
-
-    T4 = fork();
-    if(T4 < 0) {
-        perror("fork error");
-        exit(EXIT_FAILURE);
-    }
-    else if(T4 == 0) {
-        // treno T4
-        routineTreno(4); 
-        exit(EXIT_SUCCESS);
-    }
-    wait(NULL);
-
-    if(strcmp(MAPPA, "MAPPA2") == 0) {
-        T5 = fork();
-        if(T5 < 0) {
-            perror("fork error");
+    int n_treni=(strcmp(MAPPA, "MAPPA1") == 0) ? 4 : 5;
+    
+    for(int i = 0; i < n_treni; ++i){
+        treni[i] = fork();
+        if(treni[i] < 0) {
+            fprintf(stderr, "Fork Failed\n");
             exit(EXIT_FAILURE);
         }
-        else if(T5 == 0) {
-            // treno T5
-            routineTreno(5); 
+        else if(treni[i] == 0) {
+            routineTreno(i+1); 
             exit(EXIT_SUCCESS);
         }
+        wait(NULL);
     }
+
     wait(NULL);
     exit(EXIT_SUCCESS);
     return 0;
