@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     char * M1itinerarioT2[] = {"S2", "MA5", "MA6", "MA7", "MA3", "MA8", "S6"};
     char * M1itinerarioT3[] = {"S7", "MA13", "MA12", "MA11", "MA10", "MA9", "S3"};
     char * M1itinerarioT4[] = {"S4", "MA14", "MA15", "MA16", "MA12", "S8"};
-    char * M1itinerarioT5[] = {};
+    char * M1itinerarioT5[] = {NULL};
 
 
     char * M2itinerarioT1[] = {"S2", "MA5", "MA7", "MA3", "MA8", "S6"};
@@ -52,8 +52,8 @@ int main(int argc, char *argv[]) {
         i = assegnaItinerario(richiesta);
         printf("sto per inviare a T%d\n", i);
 
-        if(strcmp(MAPPA, "MAPPA1") == 0) {
-            if(i==1) inviaItinerario(M1itinerarioT1, 1, SIZEOF(M1itinerarioT1));
+        if(strcmp(MAPPA, "MAPPA1") == 0) {     
+            if(i==1)inviaItinerario(M1itinerarioT1, 1, SIZEOF(M1itinerarioT1));
             else if(i==2) inviaItinerario(M1itinerarioT2, 2, SIZEOF(M1itinerarioT2));
             else if(i==3) inviaItinerario(M1itinerarioT3, 3, SIZEOF(M1itinerarioT3));
             else if(i==4) inviaItinerario(M1itinerarioT4, 4, SIZEOF(M1itinerarioT4));
@@ -91,7 +91,7 @@ int attesaRichieste(int fd, char *str) {
 }
 
 int inviaItinerario(char* itinerario[], int r, int lunghezzaItinerario) {
-    int sendingToTrain_fd, lunghezzaTappa, i;// char message [100];
+    int sendingToTrain_fd, lunghezzaTappa, i;
 
     char nomePipe[20];
 
