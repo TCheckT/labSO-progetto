@@ -44,6 +44,7 @@ int main(int argc, char *argv[]) {
     else if(PADRE_TRENI == 0) {
         //figlio: esegue processo padre_treni
         execl("./padre_treni", "padre_treni", MAPPA, NULL);
+        
     } else {
         // genitore: Qua è dove continua movementAuthority
 
