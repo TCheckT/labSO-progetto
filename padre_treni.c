@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
         else if(treni[i] == 0) {
 
             char arg_treno[5];
-            sprintf(temp, "%d",i+1);
+            sprintf(arg_treno, "%d",i+1);
             execl("./processo_treno", "processo_treno", arg_treno, NULL);
 
             exit(EXIT_SUCCESS);

@@ -112,7 +112,7 @@ int inviaItinerario(char* itinerario[], int r, int lunghezzaItinerario) {
         printf("Sending %s through pipe\n", tappa);
         write(sendingToTrain_fd, tappa, lunghezzaTappa);
 
-        sleep (1); /* Pause a while */
+        sleep (0.5); /* Pause a while */
     }
     close(sendingToTrain_fd);
     return 0;
