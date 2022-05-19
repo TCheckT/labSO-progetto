@@ -21,8 +21,8 @@ int main(int argc, char *argv[]) {
     //Crea pipe per invio itinerari dal registro ai treni
     // Treno apre in lettura registro apre in scrittura
     
-    char nomePipe[14];
-    int n_treni=(strcmp(MAPPA, "MAPPA1"))?4:5;
+    char nomePipe[20];
+    int n_treni=(strcmp(MAPPA, "MAPPA1") == 0) ? 4 : 5;
 
     for (int i = 1; i <= n_treni; ++i)
     {
