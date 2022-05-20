@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
         }
        
     }
-    wait(NULL);
+    sleep(10);
 
     exit(EXIT_SUCCESS);
     return 0;

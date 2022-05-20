@@ -38,11 +38,13 @@ int main(int argc, char *argv[]) {
         
         //Crea pipe per invio richieste itinerario dei treni al registro
         // Treno apre in scrittura registro apre in lettura
-        //unlink("itineraryRequestPipe");
-        mknod("itineraryRequestPipe", S_IFIFO, 0);
-        chmod("itineraryRequestPipe", 0660);
+        char nomePipe[30];
+        sprintf(nomePipe, "T%ditineraryRequestPipe", richiesteSoddisfatte + 1);
+        unlink(nomePipe);
+        mknod(nomePipe, S_IFIFO, 0);
+        chmod(nomePipe, 0660);
 
-        irp_fd = open("itineraryRequestPipe", O_RDONLY);
+        irp_fd = open(nomePipe, O_RDONLY);
         printf("waiting for requests...\n");
 
         attesaRichieste(irp_fd, richiesta);
@@ -74,9 +76,9 @@ int main(int argc, char *argv[]) {
 
         printf("%d richieste soddisfatte\n", richiesteSoddisfatte);
         close(irp_fd);
-        //unlink("itineraryRequestPipe");
+        unlink(nomePipe);
     }
-    unlink("itineraryRequestPipe");
+
     exit(EXIT_SUCCESS);
     return 0;
 }
@@ -111,6 +113,8 @@ int inviaItinerario(char* itinerario[], int r, int lunghezzaItinerario) {
         lunghezzaTappa = strlen(tappa) + 1;
         printf("Sending %s through pipe\n", tappa);
         write(sendingToTrain_fd, tappa, lunghezzaTappa);
+
+        
     }
     close(sendingToTrain_fd);
     return 0;

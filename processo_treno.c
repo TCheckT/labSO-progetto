@@ -10,9 +10,11 @@ int main(int argc, char const *argv[])
 
     lunghezzaRichiesta = strlen (richiesta) + 1;
 
+    char nomeRequestPipe[30];
+    sprintf(nomeRequestPipe, "T%sitineraryRequestPipe", argv[1]);
     do { // Prova ad aprire la pipe fino a che non ha successo 
-        irp_fd = open ("itineraryRequestPipe", O_WRONLY); // Apre la pipe con nome
-        printf("%s prova ad aprire itinerary Request Pipe, risultato: %d\n", richiesta, irp_fd);
+        irp_fd = open (nomeRequestPipe, O_WRONLY); // Apre la pipe con nome
+        printf("%s prova ad aprire %s, risultato: %d\n", richiesta, nomeRequestPipe, irp_fd);
         if (irp_fd == -1) sleep (1); // Prova ancora dopo un secondo se fallisce
     } while (irp_fd == -1);
 
