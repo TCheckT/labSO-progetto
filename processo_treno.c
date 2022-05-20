@@ -54,8 +54,6 @@ int main(int argc, char const *argv[])
     
     kill(getppid(), SIGUSR1);
 
-    //exit(EXIT_SUCCESS);
-
     return 0;
 }
 
