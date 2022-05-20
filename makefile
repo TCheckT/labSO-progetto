@@ -1,4 +1,4 @@
-movementAuthority: movementAuthority.o padre_treni registro
+movementAuthority: movementAuthority.o padre_treni registro server_RBC
 	cc movementAuthority.o -o movementAuthority
 
 movementAuthority.o: movementAuthority.c header.h
@@ -22,6 +22,12 @@ processo_treno: processo_treno.o
 processo_treno.o: processo_treno.c header.h
 	cc -c processo_treno.c
 
+server_RBC: server_RBC.o
+	cc server_RBC.o -o server_RBC
+	
+server_RBC.o: server_RBC.c header.h
+	cc -c server_RBC.c
+
 install:
 	mkdir progetto
 	mkdir progetto/src
@@ -36,7 +42,7 @@ install:
 clean:
 	rm -f *.o 
 	rm -f T*
-	rm -f movementAuthority registro padre_treni processo_treno
+	rm -f movementAuthority registro padre_treni processo_treno server_RBC
 	rm -f MA*
 	rm -f itineraryRequestPipe
 
