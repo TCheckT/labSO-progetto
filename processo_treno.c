@@ -49,11 +49,12 @@ int main(int argc, char const *argv[])
     while(count < 2){
         count++;
         printf("##########T%s is doing stuff number %d... \n", argv[1], count);
-        sleep(1);
-        
+        sleep(1);    
     }
     
-    exit(EXIT_SUCCESS);
+    kill(getppid(), SIGUSR1);
+
+    //exit(EXIT_SUCCESS);
 
     return 0;
 }

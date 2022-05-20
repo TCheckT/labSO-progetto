@@ -8,11 +8,13 @@ void catch_usr1(int signum);
 int signalCounter = 0;
 int counter;
 */
+void my_handler(int signum);
 
+int signalCounter = 0;
 
 int main(int argc, char *argv[]) {
 
-    // signal(SIGUSR1, my_handler);
+    signal(SIGUSR1, my_handler);
 
     char* MAPPA = argv[1];
     // PADRE_TRENI crea i segmenti di binario
@@ -42,7 +44,10 @@ int main(int argc, char *argv[]) {
         }
        
     }
-    sleep(10);
+    // wait(NULL);
+    // sleep(10);
+
+    while(signalCounter < n_treni) {}
 
     exit(EXIT_SUCCESS);
     return 0;
@@ -74,19 +79,18 @@ int creaSegmenti() {
 
 
 
-/* Tentativi di signal handler
+
 
 void my_handler(int signum)
 {
     if (signum == SIGUSR1)
     {
-        ++signalCounter;
-        printf("Ricevo %d° SIGUSR1!\n", signalCounter);
+        printf("Ricevo %d° SIGUSR1!\n", ++signalCounter);
     }
     
 }
 
-
+/* Tentativi di signal handler
 
 void catch_usr2(int signum) {
     counter++;
