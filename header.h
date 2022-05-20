@@ -13,15 +13,6 @@
 
 #define SIZEOF(a) ( sizeof a / sizeof a[0] )
 
-typedef char* itinerario[10]; 
-
-struct Tabella {
-    char** T1;
-    char** T2;
-    char** T3;
-    char** T4;
-    char** T5;
-};
 //movementAuthority
 int inputCheck(int argc, char *argv[]);
 int createTracks();
