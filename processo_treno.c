@@ -1,68 +1,80 @@
 #include "header.h"
 
-int main(int argc, char const *argv[])
-{
-	int irp_fd, lunghezzaRichiesta; char richiesta [100];
+void signalHandler(int signum);
+
+int main(int argc, char const *argv[]) {
     
-	sprintf(richiesta, "T%s", argv[1]);
+    const char* trainNumber = argv[1];
 
-    printf("Processo %s iniziato\n", richiesta);
+    /* install signal to synchronize trains in starting their mission */
+    signal(SIGCONT, signalHandler);
 
-    lunghezzaRichiesta = strlen (richiesta) + 1;
+    // preparing request
+     int itineraryRequestPipe_fd, requestLen; char request [5];
+	sprintf(request, "T%s", trainNumber);
+    requestLen = strlen (request) + 1;
 
-    char nomeRequestPipe[30];
-    sprintf(nomeRequestPipe, "T%sitineraryRequestPipe", argv[1]);
-    do { // Prova ad aprire la pipe fino a che non ha successo 
-        irp_fd = open (nomeRequestPipe, O_WRONLY); // Apre la pipe con nome
-        printf("%s prova ad aprire %s, risultato: %d\n", richiesta, nomeRequestPipe, irp_fd);
-        if (irp_fd == -1) sleep (1); // Prova ancora dopo un secondo se fallisce
-    } while (irp_fd == -1);
+    char requestPipeName[30];
+    sprintf(requestPipeName, "T%sitineraryRequestPipe", trainNumber);
+    do { // try open pipe until successful 
+        itineraryRequestPipe_fd = open (requestPipeName, O_WRONLY);
+        /* DEBUG: check open result */
+        // printf("%s prova ad aprire %s, risultato: %d\n", request, requestPipeName, itineraryRequestPipe_fd);
+        if (itineraryRequestPipe_fd == -1) sleep (1); // Try again after one second if fail
+    } while (itineraryRequestPipe_fd == -1);
 
-    // invio richiesta
-    write (irp_fd, richiesta, lunghezzaRichiesta);
+    // send request
+    write (itineraryRequestPipe_fd, request, requestLen);
 
-    // Treno riceve itinerario
-    int Trp_fd;
-    char tappaRicevuta[100];
-    char itinerario[10][5];
+    close(itineraryRequestPipe_fd);
+    unlink(requestPipeName);
+
+    // Preparing to receive itinerary
+    int registerToTrainPipe_fd;
+    char receivedStage[5];
+    char itinerary[10][5];
     int i = 0;
-    char nomePipe[20];
-    sprintf(nomePipe, "T%sregisterPipe", argv[1]);
-    Trp_fd = open(nomePipe, O_RDONLY);
+    char itineraryPipeName[30];
+    sprintf(itineraryPipeName, "T%sregisterPipe", trainNumber);
+    registerToTrainPipe_fd = open(itineraryPipeName, O_RDONLY);
 
-    while(riceviTappe(Trp_fd, tappaRicevuta)) {
-        //salvare le tappe in una propria struttura dati
-        printf("Saving %s into T%s\n", tappaRicevuta, argv[1]);
-        strcpy(itinerario[i], tappaRicevuta);
+    while(receiveStage(registerToTrainPipe_fd, receivedStage)) {
+        //save stage in own data structure
+        printf("Saving %s into T%s\n", receivedStage, trainNumber);
+        strcpy(itinerary[i], receivedStage);
         i++;
     }
-    close(Trp_fd);
-    unlink(nomePipe);
-
     printf("T%s:", argv[1]);
-    for (int j = 0; j < i; ++j) printf("->%s", itinerario[j]);
+    for (int j = 0; j < i; ++j) printf("->%s", itinerary[j]);
     printf("\n");
+    close(registerToTrainPipe_fd);
+    unlink(itineraryPipeName);
+
+    // waiting for a SIGCONT from register to start with all the other trains
+    kill(getpid(), SIGSTOP);
+
     printf("treno T%s ready\n", argv[1]);
-    printf("\n");
-
-
-
+  
+    // TODO: train behaviour, this is a placeholder
     int count = 0;
     while(count < 2){
         count++;
-        printf("##########T%s is doing stuff number %d with mode %s... \n", argv[1], count, argv[2]);
+        printf("##########T%s is doing stuff number %d with mode %s... \n", trainNumber, count, argv[2]);
         sleep(1);    
     }
-    
-    kill(getppid(), SIGUSR1);
-
+   
+    exit(EXIT_SUCCESS);
     return 0;
 }
 
-int riceviTappe(int fd, char *str){
+int receiveStage(int fd, char *str){
     int n;
     do {
         n = read(fd, str, 1);
     } while(n > 0 && *str++ != '\0');
     return (n > 0);
+}
+
+void signalHandler(int signum){
+    //do nothing just restart
 }

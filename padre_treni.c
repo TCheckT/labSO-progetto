@@ -1,48 +1,45 @@
 #include "header.h"
 
-void trainEndMissionHandler(int signum);
-
-int signalCounter = 0;
-
 int main(int argc, char *argv[]) {
-
-    signal(SIGUSR1, trainEndMissionHandler);
 
     char* MAPPA = argv[1];
     char* MODE = argv[2];
-    // PADRE_TRENI crea i segmenti di binario
-    if(creaSegmenti()!=0)
-        perror("errore creazione segmenti di binario\n");
-    
-    pid_t treni[5];
 
-
-    int n_treni=(strcmp(MAPPA, "MAPPA1") == 0) ? 4 : 5;
+    // create files that represent tracks segments
+    if(createTracks()!=0)
+        perror("Error: binary segments not created correctly\n");
     
-    for(short int i = 0; i < n_treni; i++){ 
+    /* create the right number of trains according to MAPPA: 
+        always declare 5 pid but if MAPPA1 doesn't initialise the last one */
+    pid_t train[5];
+    int numberOfTrains=(strcmp(MAPPA, "MAPPA1") == 0) ? 4 : 5;
+    
+    for(short int i = 0; i < numberOfTrains; i++){ 
        
-        treni[i] = fork();
+        train[i] = fork();
        
-        if(treni[i] < 0) {
-            fprintf(stderr, "Fork Failed\n");
+        if(train[i] < 0) {
+            fprintf(stderr, "Fork failed\n");
             exit(EXIT_FAILURE);
         }
-        else if(treni[i] == 0) {
-
-            char arg_treno[5];
-            sprintf(arg_treno, "%d",i+1);
-            execl("./processo_treno", "processo_treno", arg_treno, MODE, NULL);
+        else if(train[i] == 0) {
+            // execute a train process 
+            char trainNumber[5];
+            sprintf(trainNumber, "%d",i+1);
+            execl("./processo_treno", "processo_treno", trainNumber, MODE, NULL);
         }
-       
     }
+    // wait for all child to finish
+    wait(NULL);
 
-    while(signalCounter < n_treni) {}
+    /* ATTEMPT TO REALIZE OPTIONAL TASK 2: supposed to use SIGUSR1*/
+    //while(signalCounter < n_treni) {}
 
     exit(EXIT_SUCCESS);
     return 0;
 }
 
-int creaSegmenti() {
+int createTracks() {
     FILE * file; //buffer for file operations
     char name[5];
 
@@ -51,7 +48,7 @@ int creaSegmenti() {
         //generating the name of the file MAx with metavariables
         sprintf(name, "MA%d",i);
 
-        //opeing the file in write-only mode
+        //opening the file in write-only mode
         file = fopen(name, "w");
 
         //setting access permissions
@@ -66,10 +63,11 @@ int creaSegmenti() {
     return 0;
 }
 
+/* ATTEMPT TO REALIZE OPTIONAL TASK 2: supposed to use SIGUSR1
 void trainEndMissionHandler(int signum) {
-    if (signum == SIGUSR1)
-    {
-        printf("Ricevo %d° SIGUSR1!\n", ++signalCounter);
-    }
     
+    wait(NULL);
+    //printf("Ricevo %d° SIGUSR1!\n", ++signalCounter);
+    //sleep(1);
 }
+*/

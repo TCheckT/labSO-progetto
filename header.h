@@ -23,15 +23,15 @@ struct Tabella {
     char** T5;
 };
 //movementAuthority
-int controlloInput(int argc, char *argv[]);
-int creaSegmenti();
+int inputCheck(int argc, char *argv[]);
+int createTracks();
 char * genName(int);
 
 //padre_treni
-int riceviTappe(int fd, char *str);
+int receiveStage(int fd, char *str);
 int routineTreno(int numeroTreno);
 
 //registro
-int attesaRichieste(int fd, char *str);
-int inviaItinerario(char* itinerario[], int numeroTreno, int lunghezzaItinerario);
-int assegnaItinerario(char[]);
+int waitForRequest(int fd, char *str);
+int sendItinerary(char* itinerario[], int numeroTreno, int lunghezzaItinerario);
+int assignItinerary(char[]);
