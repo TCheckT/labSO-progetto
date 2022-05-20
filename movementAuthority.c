@@ -26,6 +26,8 @@ int main(int argc, char *argv[]) {
         MAPPA = argv[2];
     }
 
+    char* MODE = argv[1];
+
     //Crea pipe per invio itinerari dal registro ai treni
     // Treno apre in lettura registro apre in scrittura
     
@@ -51,7 +53,7 @@ int main(int argc, char *argv[]) {
     }
     else if(PADRE_TRENI == 0) {
         //figlio: esegue processo padre_treni
-        execl("./padre_treni", "padre_treni", MAPPA, NULL);
+        execl("./padre_treni", "padre_treni", MAPPA, MODE, NULL);
         
     } else {
         // genitore: Qua è dove continua movementAuthority

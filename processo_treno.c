@@ -45,10 +45,12 @@ int main(int argc, char const *argv[])
     printf("treno T%s ready\n", argv[1]);
     printf("\n");
 
+
+
     int count = 0;
     while(count < 2){
         count++;
-        printf("##########T%s is doing stuff number %d... \n", argv[1], count);
+        printf("##########T%s is doing stuff number %d with mode %s... \n", argv[1], count, argv[2]);
         sleep(1);    
     }
     

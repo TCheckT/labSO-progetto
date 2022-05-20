@@ -9,6 +9,7 @@ int main(int argc, char *argv[]) {
     signal(SIGUSR1, trainEndMissionHandler);
 
     char* MAPPA = argv[1];
+    char* MODE = argv[2];
     // PADRE_TRENI crea i segmenti di binario
     if(creaSegmenti()!=0)
         perror("errore creazione segmenti di binario\n");
@@ -30,7 +31,7 @@ int main(int argc, char *argv[]) {
 
             char arg_treno[5];
             sprintf(arg_treno, "%d",i+1);
-            execl("./processo_treno", "processo_treno", arg_treno, NULL);
+            execl("./processo_treno", "processo_treno", arg_treno, MODE, NULL);
         }
        
     }
