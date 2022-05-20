@@ -3,12 +3,20 @@
 int main(int argc, char *argv[]) {
 
     /* controlloInput controlla che gli argomenti passati 
-       in input in argv siano del giusto formato */
-    if(controlloInput(argc, argv) != 0) {
-        return 0;
+       in input in argv siano del giusto formato  
+       return 0 se input corretto e non RBC
+       return 1 se input errato
+       return 2 se input corretto con opzione RBC */
+    int risultatoControlloInput = controlloInput(argc, argv);
+    printf("resInput = %d\n", risultatoControlloInput);
+    if(risultatoControlloInput == 1) {
+        perror("Formato input errato!\n");
+        exit(-1);
+    } else if (risultatoControlloInput == 2) {
+        printf("Launching server...\n");
+        execl("./server_RBC", "server_RBC", argv[3], NULL);
     }
-    printf("Formato input corretto!\n");
-
+    
     char* MAPPA;
 
     if(argc == 4) {
@@ -113,6 +121,7 @@ int controlloInput(int argc, char *argv[]) {
                 printf("Formato atteso: <./nomeprogramma [ECTS1/ECTS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
                 return 1;
             }
+            return 2;
         }
         if(argc == 3) {
             if(strcmp(argv[2], "MAPPA1") != 0 && strcmp(argv[2], "MAPPA2") != 0) {
