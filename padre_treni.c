@@ -1,6 +1,18 @@
 #include "header.h"
 
+/* Tentativi signal counter
+void my_handler(int signum);
+void catch_usr2(int signum);
+void catch_usr1(int signum);
+
+int signalCounter = 0;
+int counter;
+*/
+
+
 int main(int argc, char *argv[]) {
+
+    // signal(SIGUSR1, my_handler);
 
     char* MAPPA = argv[1];
     // PADRE_TRENI crea i segmenti di binario
@@ -9,9 +21,10 @@ int main(int argc, char *argv[]) {
     
     pid_t treni[5];
 
+
     int n_treni=(strcmp(MAPPA, "MAPPA1") == 0) ? 4 : 5;
     
-    for(short int i = 0; i < n_treni; ++i){
+    for(short int i = 0; i < n_treni; i++){ // perchè avevi messo ++i? :(
        
         treni[i] = fork();
        
@@ -25,12 +38,12 @@ int main(int argc, char *argv[]) {
             sprintf(arg_treno, "%d",i+1);
             execl("./processo_treno", "processo_treno", arg_treno, NULL);
 
-            exit(EXIT_SUCCESS);
+           // exit(EXIT_SUCCESS);
         }
-        wait(NULL);
+       
     }
-
     wait(NULL);
+
     exit(EXIT_SUCCESS);
     return 0;
 }
@@ -58,3 +71,37 @@ int creaSegmenti() {
     }
     return 0;
 }
+
+
+
+/* Tentativi di signal handler
+
+void my_handler(int signum)
+{
+    if (signum == SIGUSR1)
+    {
+        ++signalCounter;
+        printf("Ricevo %d° SIGUSR1!\n", signalCounter);
+    }
+    
+}
+
+
+
+void catch_usr2(int signum) {
+    counter++;
+}
+
+int sw;
+
+void catch_usr1(int signum) {
+    if(signum == SIGUSR1) {
+        signal(SIGUSR2, catch_usr2);
+        sw = 1;
+    } else {
+        signal(SIGUSR2, SIG_DFL);
+        Side note: If you want to count these only single time, remove line below. 
+        sw = 0;
+    }
+}
+*/

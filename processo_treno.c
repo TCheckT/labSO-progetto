@@ -6,10 +6,13 @@ int main(int argc, char const *argv[])
     
 	sprintf(richiesta, "T%s", argv[1]);
 
+    printf("Processo %s iniziato\n", richiesta);
+
     lunghezzaRichiesta = strlen (richiesta) + 1;
 
     do { // Prova ad aprire la pipe fino a che non ha successo 
         irp_fd = open ("itineraryRequestPipe", O_WRONLY); // Apre la pipe con nome
+        printf("%s prova ad aprire itinerary Request Pipe, risultato: %d\n", richiesta, irp_fd);
         if (irp_fd == -1) sleep (1); // Prova ancora dopo un secondo se fallisce
     } while (irp_fd == -1);
 
@@ -39,6 +42,16 @@ int main(int argc, char const *argv[])
     printf("\n");
     printf("treno T%s ready\n", argv[1]);
     printf("\n");
+
+    int count = 0;
+    while(count < 2){
+        count++;
+        printf("##########T%s is doing stuff number %d... \n", argv[1], count);
+        sleep(1);
+        
+    }
+    
+    exit(EXIT_SUCCESS);
 
     return 0;
 }

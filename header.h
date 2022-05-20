@@ -8,6 +8,8 @@
 #include <sys/types.h>
 #include <sys/stat.h> /* For S_IFIFO */
 #include <fcntl.h>
+#include <signal.h>
+
 
 #define SIZEOF(a) ( sizeof a / sizeof a[0] )
 
