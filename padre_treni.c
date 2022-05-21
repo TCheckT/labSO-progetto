@@ -29,7 +29,11 @@ int main(int argc, char *argv[]) {
             execl("./processo_treno", "processo_treno", trainNumber, MODE, NULL);
         }
     }
-    // wait for all child to finish
+    // wait for all children to finish
+    wait(NULL);
+    wait(NULL);
+    wait(NULL);
+    wait(NULL);
     wait(NULL);
 
     /* ATTEMPT TO REALIZE OPTIONAL TASK 2: supposed to use SIGUSR1*/

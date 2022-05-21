@@ -26,3 +26,6 @@ int routineTreno(int numeroTreno);
 int waitForRequest(int fd, char *str);
 int sendItinerary(char* itinerario[], int numeroTreno, int lunghezzaItinerario);
 int assignItinerary(char[]);
+
+//processo_treno
+int requestAccessTo(char step[5], const char* MODE);

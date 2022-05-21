@@ -6,8 +6,16 @@ Adesso è disponibile un makefile funzionante. Opzioni per la compilazione:
 - "make" per compilare i tre file .c, dopodichè lanciare il programma movementAuthority. Tutti i file creati durante l'esecuzione, come pipe e file binari, saranno creati nella current directory, rendendo il tutto abbastanza disordinato. Usare "make clean" per ripristinare la situazione iniziale
 - [NOPE] NON USARE!!!! "make install" per compilare i tre file .c e organizzare la directory in modo che gli eseguibili vengano inseriti nella cartella bin, i file .c nella cartella source e si possano inoltre creare le cartelle nelle quali organizzare i file. 
 
+// 20.05.2022
+Tutti i treni ricevono correttamente gli itinerari e li salvano in una propria struttura dati. 
+Una volta ricevuti gli itinerari si mettono in attesa che anche gli altri treni siano pronti e chiamano su sè stessi una SIGSTOP. Sarà il processo registro che, una volta terminato, lancerà una SIGCONT a tutti i processi del suo gruppo di appartenenza, facendo ripartire i processi treno.
+Da questo punto basta implementare il movimento dei treni e tutto dovrebbe continuare a funzionare correttamente se questo è implementato correttamente.
+
 // 21.05.2022
-!!!!!!!!!!!!Aggiornare qua README quanto prima!!!!!!!!!!!!!
+Implementato funzionamento in modalità ECTS1.
+
+Manca da aggiungere la produzione dei file di log e risolvere il fatto che alla terminazione di uno dei processi figlio termina anche il processo padre.
+Per ora il problema della terminazione del padre è risolto in modo dumb-ino
 
 //DONE:
 - scansione argomenti input e controllo formato [ECTS1/2][PBR][MAPPA1/2]
@@ -21,5 +29,3 @@ Adesso è disponibile un makefile funzionante. Opzioni per la compilazione:
 
 1- risistemare header, magari farne più di uno differenziando gli include in base ai processi
 
-
-/

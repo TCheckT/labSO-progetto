@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
     char * M1itineraryT5[] = {NULL};
 
 
-    char * M2itineraryT1[] = {"S2", "MA5", "MA7", "MA3", "MA8", "S6"};
+    char * M2itineraryT1[] = {"S2", "MA5", "MA6", "MA7", "MA3", "MA8", "S6"};
     char * M2itineraryT2[] = {"S3", "MA9", "MA10", "MA11", "MA12", "S8"};
     char * M2itineraryT3[] = {"S4", "MA14", "MA15", "MA16", "MA12", "S8"};
     char * M2itineraryT4[] = {"S6", "MA8", "MA3", "MA2", "MA1", "S1"};
