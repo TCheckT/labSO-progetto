@@ -10,6 +10,10 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <time.h>
+#include <sys/types.h>          /* See NOTES */
+#include <sys/socket.h>
+#include <sys/un.h>
+
 
 #define SIZEOF(a) ( sizeof a / sizeof a[0] )
 

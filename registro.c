@@ -3,7 +3,8 @@
 int main(int argc, char *argv[]) {
 
     char* MAPPA = argv[1];
-    // printf("%s received from movementAuthority\n", MAPPA);
+    char* ETCS = argv[2];
+    // printf("%s received from movementAuthority\n", ETCS);
 
     // setting train number according to MAPPA
     int numberOfTrains;
@@ -28,6 +29,13 @@ int main(int argc, char *argv[]) {
     char * M2itineraryT4[] = {"S6", "MA8", "MA3", "MA2", "MA1", "S1"};
     char * M2itineraryT5[] = {"S5", "MA4", "MA3", "MA2", "MA1", "S1"};
     
+    //TODO: sending all itineraries to serverRBC
+    if(strcmp(ETCS, "ETCS2") == 0) {
+        while(1) {
+            printf("waiting for server request...\n");
+            sleep(3);
+        }
+    }
     
     // preparing to receive requests from trains
     int itineraryRequestPipe_fd;

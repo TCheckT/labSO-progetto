@@ -4,7 +4,7 @@ void signalHandler(int signum);
 
 int main(int argc, char const *argv[]) {
     
-    const char * MODE = argv[2];
+    const char * ETCS = argv[2];
 
     const char* trainNumber = argv[1];
 
@@ -21,7 +21,7 @@ int main(int argc, char const *argv[]) {
     do { // try open pipe until successful 
         itineraryRequestPipe_fd = open (requestPipeName, O_WRONLY);
         /* DEBUG: check open result */
-        // printf("%s prova ad aprire %s, risultato: %d\n", request, requestPipeName, itineraryRequestPipe_fd);
+        printf("%s prova ad aprire %s, risultato: %d\n", request, requestPipeName, itineraryRequestPipe_fd);
         if (itineraryRequestPipe_fd == -1) sleep (1); // Try again after one second if fail
     } while (itineraryRequestPipe_fd == -1);
 
@@ -88,7 +88,7 @@ int main(int argc, char const *argv[]) {
         fwrite(logUpdate, sizeof(char), strlen(logUpdate), logFile);
 
         // B. Request authorization to access the segment or station
-        int authorization = requestAccessTo(nextStep, MODE);
+        int authorization = requestAccessTo(nextStep, ETCS);
         
         if (authorization == 2) { // if nextStep is a station
             printf("T%s: Access to %s authorized\n", trainNumber, nextStep);  
@@ -163,13 +163,13 @@ void signalHandler(int signum){
 }
 
     
-int requestAccessTo(char step[5], const char* MODE){
+int requestAccessTo(char step[5], const char* ETCS){
    
     printf("Requesting access to %s\n", step);
 
     FILE * file;
 
-    if(strcmp(MODE, "ECTS1") == 0) {
+    if(strcmp(ETCS, "ETCS1") == 0) {
         // if next step is a train station access is automatically guaranteed
         char isStation[2];
         sprintf(isStation, "%c", step[0]);
@@ -189,7 +189,7 @@ int requestAccessTo(char step[5], const char* MODE){
 
         return 0;
 
-    } else if (strcmp(MODE, "ECTS2") == 0) {
+    } else if (strcmp(ETCS, "ETCS2") == 0) {
         // requesting to server
         printf("missing server request implementation\n");
         return -1;

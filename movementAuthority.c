@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
         creating padre_treni and registro */
     
     char* MAPPA = argv[2];
-    char* MODE = argv[1];
+    char* ETCS = argv[1];
 
     
     // Create pipes that will be used from register to send itinerary to trains 
@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
     }
     else if(PADRE_TRENI == 0) {
         // execute padre_treni
-        execl("./padre_treni", "padre_treni", MAPPA, MODE, NULL);
+        execl("./padre_treni", "padre_treni", MAPPA, ETCS, NULL);
         
     } else {
         // process movementAuthority continue
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
         }
         else if(REGISTRO == 0) {
             // execute registro
-            execl("./registro", "registro", MAPPA, NULL);
+            execl("./registro", "registro", MAPPA, ETCS, NULL);
         } else {
             // process movementAuthority continue
 
@@ -78,36 +78,36 @@ int inputCheck(int argc, char *argv[]) {
     // check correct number of arguments
     if(argc < 3 || argc > 4) {
         printf("Sono attesi almeno 2 parametri, al più 3.\n");
-        printf("Formato atteso: <./nomeprogramma [ECTS1/ECTS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
+        printf("Formato atteso: <./nomeprogramma [ETCS1/ETCS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
         return 1;
     }
 
-    // check that first argument is ECTS1 or ECTS2
-    if(strcmp(argv[1], "ECTS1") != 0 && strcmp(argv[1], "ECTS2") != 0) {
+    // check that first argument is ETCS1 or ETCS2
+    if(strcmp(argv[1], "ETCS1") != 0 && strcmp(argv[1], "ETCS2") != 0) {
         printf("%s non accettato come primo parametro.\n", argv[1]);
-        printf("Specificare modalità ECTS1 o modalità ECTS2 come primo parametro.\n");
-        printf("Formato atteso: <./nomeprogramma [ECTS1/ECTS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
+        printf("Specificare modalità ETCS1 o modalità ETCS2 come primo parametro.\n");
+        printf("Formato atteso: <./nomeprogramma [ETCS1/ETCS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
         return 1;
     }
 
-    // if first argument is ECTS1, second one must be MAPPA1 or MAPPA2
-    if(strcmp(argv[1], "ECTS1") == 0) {
+    // if first argument is ETCS1, second one must be MAPPA1 or MAPPA2
+    if(strcmp(argv[1], "ETCS1") == 0) {
         if(strcmp(argv[2], "MAPPA1") != 0 && strcmp(argv[2], "MAPPA2") != 0) {
             printf("Opzione %s non accettata come secondo parametro se si è in modalità ECTS1.\n", argv[2]);
             printf("Specificare itinerario MAPPA1 o itinerario MAPPA2 come secondo parametro.\n");
-            printf("Formato atteso: <./nomeprogramma [ECTS1/ECTS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
+            printf("Formato atteso: <./nomeprogramma [ETCS1/ETCS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
             return 1;
         }
     }
 
-    // if first argument is ECTS2, second one can be RBC, and in that case third one 
+    // if first argument is ETCS2, second one can be RBC, and in that case third one 
     // must be MAPPA1 or MAPPA2. Otherwise the second one must be MAPPA1 or MAPPA2
-    if(strcmp(argv[1], "ECTS2") == 0) {
+    if(strcmp(argv[1], "ETCS2") == 0) {
         if(argc == 4) {
             if(strcmp(argv[2], "RBC") != 0 || 
                 strcmp(argv[3], "MAPPA1") != 0 && strcmp(argv[3], "MAPPA2") != 0) {
-                printf("In modalità ECTS2 ci si aspetta come secondo parametro in input l'eventuale opzione RBC e come terzo parametro la specifica dell'itinerario MAPPA1 o MAPPA2.\n");
-                printf("Formato atteso: <./nomeprogramma [ECTS1/ECTS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
+                printf("In modalità ETCS2 ci si aspetta come secondo parametro in input l'eventuale opzione RBC e come terzo parametro la specifica dell'itinerario MAPPA1 o MAPPA2.\n");
+                printf("Formato atteso: <./nomeprogramma [ETCS1/ETCS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
                 return 1;
             }
             return 2;
@@ -116,7 +116,7 @@ int inputCheck(int argc, char *argv[]) {
             if(strcmp(argv[2], "MAPPA1") != 0 && strcmp(argv[2], "MAPPA2") != 0) {
                 printf("%s non accettato come secondo parametro.\n", argv[2]);
                 printf("Specificare itinerario MAPPA1 o itinerario MAPPA2 come secondo parametro.\n");
-                printf("Formato atteso: <./nomeprogramma [ECTS1/ECTS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
+                printf("Formato atteso: <./nomeprogramma [ETCS1/ETCS2][OPZIONE_RBC][MAPPA1/MAPPA2]>\n");
                 return 1;
             }
         }

@@ -20,6 +20,8 @@ Per ora il problema della terminazione del padre è risolto in modo dumb-ino
 // 22.05.2022
 Implementato management file di log dei treni
 
+Implementata socket lato server e inizio lavoro a comunicazione registro-server
+
 //DONE:
 - scansione argomenti input e controllo formato [ECTS1/2][PBR][MAPPA1/2]
 - creazione processo PADRE_TRENI come figlio processo main

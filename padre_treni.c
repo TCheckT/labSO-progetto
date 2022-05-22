@@ -3,7 +3,7 @@
 int main(int argc, char *argv[]) {
 
     char* MAPPA = argv[1];
-    char* MODE = argv[2];
+    char* ETCS = argv[2];
 
     // create files that represent tracks segments
     if(createTracks()!=0)
@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
             // execute a train process 
             char trainNumber[5];
             sprintf(trainNumber, "%d",i+1);
-            execl("./processo_treno", "processo_treno", trainNumber, MODE, NULL);
+            execl("./processo_treno", "processo_treno", trainNumber, ETCS, NULL);
         }
     }
     // wait for all children to finish

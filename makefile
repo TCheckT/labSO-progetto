@@ -45,6 +45,7 @@ clean:
 	rm -f movementAuthority registro padre_treni processo_treno server_RBC
 	rm -f MA*
 	rm -f itineraryRequestPipe
+	rm -f authorization
 
 # to remove: this option must not be present in definitive version of the project
 restore:
