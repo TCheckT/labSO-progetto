@@ -9,7 +9,7 @@
 #include <sys/stat.h> /* For S_IFIFO */
 #include <fcntl.h>
 #include <signal.h>
-
+#include <time.h>
 
 #define SIZEOF(a) ( sizeof a / sizeof a[0] )
 

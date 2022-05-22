@@ -55,16 +55,37 @@ int main(int argc, char const *argv[]) {
     // waiting for a SIGCONT from register to start with all the other trains
     kill(getpid(), SIGSTOP);
 
-    // Train behaviour
+    // Train mission
     char * currentStep;
     char * nextStep;
     int j = 0;
-    FILE * file;
+    FILE * trackFile;
+    FILE * logFile;
+
+    // create logFile
+    char logFileName[10];
+    sprintf(logFileName, "T%s.log",trainNumber);
+    logFile = fopen(logFileName, "w");
+
+    // utilities for writing date and time in logfile
+    time_t rawtime;
+    struct tm * timeinfo;
+    char dateAndTime [30];
+    time (&rawtime);
+    timeinfo = localtime (&rawtime);
 
     while(j < i) {
         // A. Read next track segment or station
         currentStep = itinerary[j];
         nextStep = itinerary[j+1];
+
+        /* log file update 
+            preparing string to write */
+        strftime (dateAndTime, 30, "%d %B %Y %X",timeinfo);
+        char logUpdate[100];
+        sprintf(logUpdate, "[Attuale: %s], [Next: %s], %s\n", currentStep, nextStep, dateAndTime);
+        // write update in logfile
+        fwrite(logUpdate, sizeof(char), strlen(logUpdate), logFile);
 
         // B. Request authorization to access the segment or station
         int authorization = requestAccessTo(nextStep, MODE);
@@ -76,10 +97,10 @@ int main(int argc, char const *argv[]) {
             sprintf(isStation, "%c", currentStep[0]);
             // check if prevois step is a station, otherwise it will create the file
             if (strcmp(isStation, "S") != 0) {
-                file = fopen(currentStep, "w");
-                fseek(file, 0, SEEK_SET);
-                fwrite("0", sizeof(char), 1, file);
-                fclose(file);
+                trackFile = fopen(currentStep, "w");
+                fseek(trackFile, 0, SEEK_SET);
+                fwrite("0", sizeof(char), 1, trackFile);
+                fclose(trackFile);
             }
             // then terminate mission
             break;
@@ -87,19 +108,19 @@ int main(int argc, char const *argv[]) {
         } else if(authorization == 1) { // if nextStep is a segment
             printf("T%s: Access to %s authorized\n", trainNumber, nextStep);
             // set to 1 occupation file of current occupated track
-            file = fopen(nextStep, "w");
-            fseek(file, 0, SEEK_SET);
-            fwrite("1", sizeof(char), 1, file);
-            fclose(file);
+            trackFile = fopen(nextStep, "w");
+            fseek(trackFile, 0, SEEK_SET);
+            fwrite("1", sizeof(char), 1, trackFile);
+            fclose(trackFile);
             // set to 0 occupation file of previous occupied track
             char isStation[2];
             sprintf(isStation, "%c", currentStep[0]);
             // check if prevois step is a station, otherwise it will create the file
             if (strcmp(isStation, "S") != 0) {
-                file = fopen(currentStep, "w");
-                fseek(file, 0, SEEK_SET);
-                fwrite("0", sizeof(char), 1, file);
-                fclose(file);
+                trackFile = fopen(currentStep, "w");
+                fseek(trackFile, 0, SEEK_SET);
+                fwrite("0", sizeof(char), 1, trackFile);
+                fclose(trackFile);
             }
             j++;
 
@@ -114,6 +135,15 @@ int main(int argc, char const *argv[]) {
         // D. repeat from A
     }
 
+    //last update to logFile before closing
+    strftime (dateAndTime, 30, "%d %B %Y %X",timeinfo);
+    char logUpdate[100];
+    sprintf(logUpdate, "[Attuale: %s], [Next: --], %s\n", nextStep, dateAndTime);
+    // write update in logfile
+    fwrite(logUpdate, sizeof(char), strlen(logUpdate), logFile);
+
+
+    fclose(logFile);
     printf("Treno T%s terminate its mission!!! CONGRATULAZIONI! clap, clap, clap...\n", trainNumber);
 
     exit(EXIT_SUCCESS);

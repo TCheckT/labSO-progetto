@@ -17,6 +17,9 @@ Implementato funzionamento in modalità ECTS1.
 Manca da aggiungere la produzione dei file di log e risolvere il fatto che alla terminazione di uno dei processi figlio termina anche il processo padre.
 Per ora il problema della terminazione del padre è risolto in modo dumb-ino
 
+// 22.05.2022
+Implementato management file di log dei treni
+
 //DONE:
 - scansione argomenti input e controllo formato [ECTS1/2][PBR][MAPPA1/2]
 - creazione processo PADRE_TRENI come figlio processo main
