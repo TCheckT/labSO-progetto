@@ -1,5 +1,7 @@
 #include "header.h"
 
+int receiveStage(int fd, char *str);
+
 struct dataArrays{
     int stations[8];
     int segments[16];
@@ -11,8 +13,7 @@ int main(int argc, char *argv[]) {
 
     printf("Server starting with map: %s\n", argv[1]);
 
-    //TODO: communication with register to receive itineraries
-
+    printf("Server creating pipe with register\n");
     // eventually unlinking pipe (in case it already exists)
     unlink("serverRegisterPipe");
     // (re)creating pipe
@@ -20,6 +21,7 @@ int main(int argc, char *argv[]) {
     // setting access permission on pipe 
     chmod("serverRegisterPipe", 0660);
 
+    printf("Server opens pipe with register in write mode\n");
     //opening pipe
     int itineraryRequestPipe_fd = open("serverRegisterPipe", O_WRONLY);
     // writing the map's name
@@ -27,15 +29,28 @@ int main(int argc, char *argv[]) {
     // closing pipe
     unlink("serverRegisterPipe");
 
+    printf("Server allocating data\n");
     struct dataArrays dataServer;
     for (int i = 0; i < 8; ++i)     dataServer.stations[i] = 0;
     for (int i = 0; i < 16; ++i)    dataServer.segments[i] = 0;
 
-    /*  for i = 0 ... numberOfTrains
-    *       read station from pipe 
-    *       atoi -> recieved
-    *       increments station in struct dataserver.station[recieved]
+
+    printf("Server accepting stations from register\n");
+    /*  [x] for i = 0 ... numberOfTrains
+    *   [x]     read station from pipe 
+    *   [ ]     atoi -> recieved
+    *   [ ]     increments station in struct dataserver.station[recieved]
     */
+    char station[5];
+    for (int i = 0; i < numberOfTrains; ++i)
+    {
+        mknod("serverRegisterPipe", S_IFIFO, 0);
+        chmod("serverRegisterPipe", 0660);
+        itineraryRequestPipe_fd = open("serverRegisterPipe", O_RDONLY);
+        receiveStage(itineraryRequestPipe_fd, station);
+        printf("Server recieved station:%s\n", station);
+        unlink("serverRegisterPipe");
+    }
 
     printf("Setting up socket...\n");
     sleep(2);
@@ -82,4 +97,11 @@ int main(int argc, char *argv[]) {
         close (clientFd); /* Close the client descriptor */
     }
 
+}
+int receiveStage(int fd, char *str){
+    int n;
+    do {
+        n = read(fd, str, 1);
+    } while(n > 0 && *str++ != '\0');
+    return (n > 0);
 }

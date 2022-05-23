@@ -9,14 +9,7 @@ int main(int argc, char *argv[]) {
     // printf("%s received from movementAuthority\n", ETCS);
 
     // setting train number according to MAPPA
-    int numberOfTrains;
-    if (strcmp(MAPPA, "MAPPA1") == 0) {
-        numberOfTrains = 4;
-    } else if (strcmp(MAPPA, "MAPPA2") == 0) {
-        numberOfTrains = 5;
-    } else {
-        printf("Error: MAPPA not recognized\n");
-    }
+    const int numberOfTrains=(strcmp(argv[1], "MAPPA1") == 0) ? 4 : 5;
     
     char * M1itineraryT1[] = {"S1", "MA1", "MA2", "MA3", "MA8", "S6"};
     char * M1itineraryT2[] = {"S2", "MA5", "MA6", "MA7", "MA3", "MA8", "S6"};
@@ -47,29 +40,56 @@ int main(int argc, char *argv[]) {
         mknod("serverRegisterPipe", S_IFIFO, 0);
         chmod("serverRegisterPipe", 0660);
 
-        if (strcmp(mapRequest,"MAPPA1"))
+        if (strcmp(mapRequest,"MAPPA1")==0)
         {
+            sleep(1);
+            itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendStation(M1itineraryT1[0], "serverRegisterPipe", SIZEOF(M1itineraryT1[0]));
+
+            sleep(1);
+            itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendStation(M1itineraryT2[0], "serverRegisterPipe", SIZEOF(M1itineraryT2[0]));
+
+            sleep(1);
+            itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendStation(M1itineraryT3[0], "serverRegisterPipe", SIZEOF(M1itineraryT3[0]));
+
+            sleep(1);
+            itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendStation(M1itineraryT4[0], "serverRegisterPipe", SIZEOF(M1itineraryT4[0]));
-            sendStation(M1itineraryT5[0], "serverRegisterPipe", SIZEOF(M1itineraryT5[0]));
         }else {
+            sleep(1);
+            itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendStation(M2itineraryT1[0], "serverRegisterPipe", SIZEOF(M2itineraryT1[0]));
+
+            sleep(1);
+            itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendStation(M2itineraryT2[0], "serverRegisterPipe", SIZEOF(M2itineraryT2[0]));
+
+            sleep(1);
+            itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendStation(M2itineraryT3[0], "serverRegisterPipe", SIZEOF(M2itineraryT3[0]));
+
+            sleep(1);
+            itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendStation(M2itineraryT4[0], "serverRegisterPipe", SIZEOF(M2itineraryT4[0]));
+
+            sleep(1);
+            itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendStation(M2itineraryT5[0], "serverRegisterPipe", SIZEOF(M2itineraryT5[0]));
         }
     }
+
+    printf("regiser sent stations to server\n");
     
     // preparing to receive requests from trains
     char receivedRequest[5];
     int satisfiedRequests = 0;
+    char requestPipeName[30];
 
     while(satisfiedRequests < numberOfTrains) {
+        printf("Register creating pipe to send itinerary to trains\n");
         //Create and open pipe for receiving itinerary from a train
-        char requestPipeName[30];
         sprintf(requestPipeName, "T%ditineraryRequestPipe", satisfiedRequests + 1);
         unlink(requestPipeName);
         mknod(requestPipeName, S_IFIFO, 0);
@@ -150,7 +170,7 @@ int sendItinerary(char* itinerary[], int r, int itineraryLen) {
     for (i = 0; i < itineraryLen; i++) { 
         char* tappa = itinerary[i];
         stageLen = strlen(tappa) + 1;
-        printf("Sending %s through pipe\n", tappa);
+        printf("Sending %s through pipe to train\n", tappa);
         write(sendingToTrain_fd, tappa, stageLen);   
     }
     close(sendingToTrain_fd);
@@ -169,11 +189,11 @@ int sendStation(char* itinerary, char * pipe, int itineraryLen) {
     } while (sendingToServer_fd == -1);
 
     stageLen = strlen(itinerary) + 1;
-    printf("Sending %s through pipe\n", itinerary);
+    printf("Sending %s through pipe to server\n", itinerary);
     write(sendingToServer_fd, itinerary, stageLen);   
 
     close(sendingToServer_fd);
-    unlink(pipe);
+    //unlink(pipe);
     return 0;
 }
 

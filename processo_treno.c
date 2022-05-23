@@ -21,7 +21,7 @@ int main(int argc, char const *argv[]) {
     do { // try open pipe until successful 
         itineraryRequestPipe_fd = open (requestPipeName, O_WRONLY);
         /* DEBUG: check open result */
-        printf("%s prova ad aprire %s, risultato: %d\n", request, requestPipeName, itineraryRequestPipe_fd);
+        //printf("%s prova ad aprire %s, risultato: %d\n", request, requestPipeName, itineraryRequestPipe_fd);
         if (itineraryRequestPipe_fd == -1) sleep (1); // Try again after one second if fail
     } while (itineraryRequestPipe_fd == -1);
 

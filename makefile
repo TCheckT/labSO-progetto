@@ -42,6 +42,8 @@ install:
 
 clean:
 	rm -f *.o 
+	rm -f *Pipe*
+	rm -f *.log
 	rm -f T*
 	rm -f movementAuthority registro padre_treni processo_treno server_RBC
 	rm -f MA*
