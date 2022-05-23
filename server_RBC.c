@@ -2,6 +2,8 @@
 
 int main(int argc, char *argv[]) {
 
+    const int numberOfTrains=(strcmp(argv[1], "MAPPA1") == 0) ? 4 : 5;
+
     printf("Server starting with map: %s\n", argv[1]);
 
     //TODO: communication with register to receive itineraries
@@ -20,12 +22,13 @@ int main(int argc, char *argv[]) {
     // closing pipe
     unlink("serverRegisterPipe");
     
-    //using pipe
-    // MAPPA must be the same that registro received
-    while(1) {
-        printf("Asking for %s itineraries\n", argv[1]);
-        sleep(3);
-    }
+    
+
+
+
+
+
+
 
     printf("Setting up socket...\n");
     sleep(2);

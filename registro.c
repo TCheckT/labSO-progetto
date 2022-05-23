@@ -1,6 +1,6 @@
 #include "header.h"
 
-int sendItineraryToServer(char* itinerary[], char * pipe, int itineraryLen);
+int sendStation(char* itinerary, char * pipe, int itineraryLen);
 
 int main(int argc, char *argv[]) {
 
@@ -42,23 +42,24 @@ int main(int argc, char *argv[]) {
         waitForRequest(itineraryRequestPipe_fd, mapRequest);
         // closing pipe
         unlink("serverRegisterPipe");
-        
+
+        itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
         mknod("serverRegisterPipe", S_IFIFO, 0);
         chmod("serverRegisterPipe", 0660);
-        
+
         if (strcmp(mapRequest,"MAPPA1"))
         {
-            sendItineraryToServer(M1itineraryT1, "serverRegisterPipe", SIZEOF(M1itineraryT1));
-            sendItineraryToServer(M1itineraryT2, "serverRegisterPipe", SIZEOF(M1itineraryT2));
-            sendItineraryToServer(M1itineraryT3, "serverRegisterPipe", SIZEOF(M1itineraryT3));
-            sendItineraryToServer(M1itineraryT4, "serverRegisterPipe", SIZEOF(M1itineraryT4));
-            sendItineraryToServer(M1itineraryT5, "serverRegisterPipe", SIZEOF(M1itineraryT5));
+            sendStation(M1itineraryT1[0], "serverRegisterPipe", SIZEOF(M1itineraryT1[0]));
+            sendStation(M1itineraryT2[0], "serverRegisterPipe", SIZEOF(M1itineraryT2[0]));
+            sendStation(M1itineraryT3[0], "serverRegisterPipe", SIZEOF(M1itineraryT3[0]));
+            sendStation(M1itineraryT4[0], "serverRegisterPipe", SIZEOF(M1itineraryT4[0]));
+            sendStation(M1itineraryT5[0], "serverRegisterPipe", SIZEOF(M1itineraryT5[0]));
         }else {
-            sendItineraryToServer(M2itineraryT1, "serverRegisterPipe", SIZEOF(M2itineraryT1));
-            sendItineraryToServer(M2itineraryT2, "serverRegisterPipe", SIZEOF(M2itineraryT2));
-            sendItineraryToServer(M2itineraryT3, "serverRegisterPipe", SIZEOF(M2itineraryT3));
-            sendItineraryToServer(M1itineraryT4, "serverRegisterPipe", SIZEOF(M2itineraryT4));
-            sendItineraryToServer(M2itineraryT5, "serverRegisterPipe", SIZEOF(M2itineraryT5));
+            sendStation(M2itineraryT1[0], "serverRegisterPipe", SIZEOF(M2itineraryT1[0]));
+            sendStation(M2itineraryT2[0], "serverRegisterPipe", SIZEOF(M2itineraryT2[0]));
+            sendStation(M2itineraryT3[0], "serverRegisterPipe", SIZEOF(M2itineraryT3[0]));
+            sendStation(M2itineraryT4[0], "serverRegisterPipe", SIZEOF(M2itineraryT4[0]));
+            sendStation(M2itineraryT5[0], "serverRegisterPipe", SIZEOF(M2itineraryT5[0]));
         }
     }
     
@@ -157,7 +158,7 @@ int sendItinerary(char* itinerary[], int r, int itineraryLen) {
     return 0;
 }
 
-int sendItineraryToServer(char* itinerary[], char * pipe, int itineraryLen) {
+int sendStation(char* itinerary, char * pipe, int itineraryLen) {
     
     // preparing to send into pipe
     int sendingToServer_fd, stageLen, i;
@@ -167,13 +168,10 @@ int sendItineraryToServer(char* itinerary[], char * pipe, int itineraryLen) {
         if (sendingToServer_fd == -1) sleep (1); // Try again after one second if fail
     } while (sendingToServer_fd == -1);
 
-    // Send all stages into pipe
-    for (i = 0; i < itineraryLen; i++) { 
-        char* tappa = itinerary[i];
-        stageLen = strlen(tappa) + 1;
-        printf("Sending %s through pipe\n", tappa);
-        write(sendingToServer_fd, tappa, stageLen);   
-    }
+    stageLen = strlen(itinerary) + 1;
+    printf("Sending %s through pipe\n", itinerary);
+    write(sendingToServer_fd, itinerary, stageLen);   
+
     close(sendingToServer_fd);
     unlink(pipe);
     return 0;
