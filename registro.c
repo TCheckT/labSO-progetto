@@ -1,5 +1,7 @@
 #include "header.h"
 
+int sendItineraryToServer(char* itinerary[], char * pipe, int itineraryLen);
+
 int main(int argc, char *argv[]) {
 
     char* MAPPA = argv[1];
@@ -29,20 +31,41 @@ int main(int argc, char *argv[]) {
     char * M2itineraryT4[] = {"S6", "MA8", "MA3", "MA2", "MA1", "S1"};
     char * M2itineraryT5[] = {"S5", "MA4", "MA3", "MA2", "MA1", "S1"};
     
+    int itineraryRequestPipe_fd;
+    char mapRequest[7];
+    
     //TODO: sending all itineraries to serverRBC
     if(strcmp(ETCS, "ETCS2") == 0) {
-        while(1) {
-            printf("waiting for server request...\n");
-            sleep(3);
+        // opening pipe with server in read-only mode
+        itineraryRequestPipe_fd = open("serverRegisterPipe",O_RDONLY);
+        // getting the server map request
+        waitForRequest(itineraryRequestPipe_fd, mapRequest);
+        // closing pipe
+        unlink("serverRegisterPipe");
+        
+        mknod("serverRegisterPipe", S_IFIFO, 0);
+        chmod("serverRegisterPipe", 0660);
+        
+        if (strcmp(mapRequest,"MAPPA1"))
+        {
+            sendItineraryToServer(M1itineraryT1, "serverRegisterPipe", SIZEOF(M1itineraryT1));
+            sendItineraryToServer(M1itineraryT2, "serverRegisterPipe", SIZEOF(M1itineraryT2));
+            sendItineraryToServer(M1itineraryT3, "serverRegisterPipe", SIZEOF(M1itineraryT3));
+            sendItineraryToServer(M1itineraryT4, "serverRegisterPipe", SIZEOF(M1itineraryT4));
+            sendItineraryToServer(M1itineraryT5, "serverRegisterPipe", SIZEOF(M1itineraryT5));
+        }else {
+            sendItineraryToServer(M2itineraryT1, "serverRegisterPipe", SIZEOF(M2itineraryT1));
+            sendItineraryToServer(M2itineraryT2, "serverRegisterPipe", SIZEOF(M2itineraryT2));
+            sendItineraryToServer(M2itineraryT3, "serverRegisterPipe", SIZEOF(M2itineraryT3));
+            sendItineraryToServer(M1itineraryT4, "serverRegisterPipe", SIZEOF(M2itineraryT4));
+            sendItineraryToServer(M2itineraryT5, "serverRegisterPipe", SIZEOF(M2itineraryT5));
         }
     }
     
     // preparing to receive requests from trains
-    int itineraryRequestPipe_fd;
     char receivedRequest[5];
     int satisfiedRequests = 0;
 
-    
     while(satisfiedRequests < numberOfTrains) {
         //Create and open pipe for receiving itinerary from a train
         char requestPipeName[30];
@@ -131,6 +154,28 @@ int sendItinerary(char* itinerary[], int r, int itineraryLen) {
     }
     close(sendingToTrain_fd);
     unlink(itineraryPipeName);
+    return 0;
+}
+
+int sendItineraryToServer(char* itinerary[], char * pipe, int itineraryLen) {
+    
+    // preparing to send into pipe
+    int sendingToServer_fd, stageLen, i;
+
+    do { // try open pipe until successful 
+        sendingToServer_fd = open ( pipe, O_WRONLY);
+        if (sendingToServer_fd == -1) sleep (1); // Try again after one second if fail
+    } while (sendingToServer_fd == -1);
+
+    // Send all stages into pipe
+    for (i = 0; i < itineraryLen; i++) { 
+        char* tappa = itinerary[i];
+        stageLen = strlen(tappa) + 1;
+        printf("Sending %s through pipe\n", tappa);
+        write(sendingToServer_fd, tappa, stageLen);   
+    }
+    close(sendingToServer_fd);
+    unlink(pipe);
     return 0;
 }
 

@@ -6,15 +6,26 @@ int main(int argc, char *argv[]) {
 
     //TODO: communication with register to receive itineraries
 
+    // eventually unlinking pipe (in case it already exists)
+    unlink("serverRegisterPipe");
+    // (re)creating pipe
+    mknod("serverRegisterPipe", S_IFIFO, 0);
+    // setting access permission on pipe 
+    chmod("serverRegisterPipe", 0660);
+
+    //opening pipe
+    int itineraryRequestPipe_fd = open("serverRegisterPipe", O_WRONLY);
+    // writing the map's name
+    write(itineraryRequestPipe_fd, argv[1], 7);
+    // closing pipe
+    unlink("serverRegisterPipe");
+    
     //using pipe
     // MAPPA must be the same that registro received
     while(1) {
         printf("Asking for %s itineraries\n", argv[1]);
         sleep(3);
     }
-
-
-
 
     printf("Setting up socket...\n");
     sleep(2);

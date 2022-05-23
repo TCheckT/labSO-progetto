@@ -38,6 +38,7 @@ install:
 	cc progetto/src/registro.c -o progetto/bin/registro
 	cc progetto/src/padre_treni.c -o progetto/bin/padre_treni
 	cc progetto/src/processo_treno.c -o progetto/bin/processo_treno
+	cc progetto/src/server_RBC.c -o progetto/bin/server_RBC
 
 clean:
 	rm -f *.o 
@@ -50,4 +51,4 @@ clean:
 # to remove: this option must not be present in definitive version of the project
 restore:
 	mv progetto/src/* .
-	rm -rd progetto
+	rm -rdf progetto
