@@ -1,5 +1,10 @@
 #include "header.h"
 
+struct dataArrays{
+    int stations[8];
+    int segments[16];
+};
+
 int main(int argc, char *argv[]) {
 
     const int numberOfTrains=(strcmp(argv[1], "MAPPA1") == 0) ? 4 : 5;
@@ -21,14 +26,16 @@ int main(int argc, char *argv[]) {
     write(itineraryRequestPipe_fd, argv[1], 7);
     // closing pipe
     unlink("serverRegisterPipe");
-    
-    
 
+    struct dataArrays dataServer;
+    for (int i = 0; i < 8; ++i)     dataServer.stations[i] = 0;
+    for (int i = 0; i < 16; ++i)    dataServer.segments[i] = 0;
 
-
-
-
-
+    /*  for i = 0 ... numberOfTrains
+    *       read station from pipe 
+    *       atoi -> recieved
+    *       increments station in struct dataserver.station[recieved]
+    */
 
     printf("Setting up socket...\n");
     sleep(2);
