@@ -71,8 +71,7 @@ int main(int argc, char const *argv[]) {
     time_t rawtime;
     struct tm * timeinfo;
     char dateAndTime [30];
-    time (&rawtime);
-    timeinfo = localtime (&rawtime);
+    
 
     while(j < i) {
         // A. Read next track segment or station
@@ -81,6 +80,8 @@ int main(int argc, char const *argv[]) {
 
         /* log file update 
             preparing string to write */
+        time (&rawtime);
+        timeinfo = localtime (&rawtime);
         strftime (dateAndTime, 30, "%d %B %Y %X",timeinfo);
         char logUpdate[100];
         sprintf(logUpdate, "[Attuale: %s], [Next: %s], %s\n", currentStep, nextStep, dateAndTime);
