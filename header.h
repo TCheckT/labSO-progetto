@@ -28,7 +28,7 @@ int routineTreno(int numeroTreno);
 
 //registro
 int waitForRequest(int fd, char *str);
-int sendItinerary(char* itinerario[], int numeroTreno, int lunghezzaItinerario);
+int sendItinerary(char* itinerario[], char numeroTreno[], int lunghezzaItinerario);
 int assignItinerary(char[]);
 
 //processo_treno
