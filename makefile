@@ -4,7 +4,7 @@ movementAuthority: movementAuthority.o padre_treni registro server_RBC
 movementAuthority.o: movementAuthority.c header.h
 	cc -c movementAuthority.c
 
-padre_treni: padre_treni.o processo_treno
+padre_treni: padre_treni.o processo_treno turn_manager
 	cc padre_treni.o -o padre_treni
 
 padre_treni.o: padre_treni.c header.h
@@ -27,6 +27,12 @@ server_RBC: server_RBC.o
 	
 server_RBC.o: server_RBC.c header.h
 	cc -c server_RBC.c
+	
+turn_manager: turn_manager.o
+	cc turn_manager.o -o turn_manager
+	
+turn_manager.o: turn_manager.c header.h
+	cc -c turn_manager.c
 
 install:
 	mkdir progetto
@@ -45,10 +51,11 @@ clean:
 	rm -f *Pipe*
 	rm -f *.log
 	rm -f T*
-	rm -f movementAuthority registro padre_treni processo_treno server_RBC
+	rm -f movementAuthority registro padre_treni processo_treno server_RBC turn_manager
 	rm -f MA*
 	rm -f itineraryRequestPipe
 	rm -f authorization
+	rm -f trackFilesGuard
 
 # to remove: this option must not be present in definitive version of the project
 restore:

@@ -9,6 +9,19 @@ int main(int argc, char *argv[]) {
     if(createTracks()!=0)
         perror("Error: binary segments not created correctly\n");
     
+    //launch turn_manager
+    pid_t turn_manager;
+
+    turn_manager = fork();
+    if (turn_manager < 0) {
+        fprintf(stderr, "Fork failed\n");
+        exit(EXIT_FAILURE);
+    } else if (turn_manager == 0) {
+        // execute turn_manager
+        execl("./turn_manager", "turn_manager", MAPPA, NULL);
+    } 
+    // padre_treni continues 
+
     /* create the right number of trains according to MAPPA: 
         always declare 5 pid but if MAPPA1 doesn't initialise the last one */
     pid_t train[5];
@@ -34,10 +47,11 @@ int main(int argc, char *argv[]) {
     wait(NULL);
     wait(NULL);
     wait(NULL);
-    wait(NULL);
-
+    if(numberOfTrains == 5) wait(NULL);
     /* ATTEMPT TO REALIZE OPTIONAL TASK 2: supposed to use SIGUSR1*/
     //while(signalCounter < n_treni) {}
+
+    kill(turn_manager, SIGKILL);
 
     exit(EXIT_SUCCESS);
     return 0;

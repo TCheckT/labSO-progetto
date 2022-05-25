@@ -2,18 +2,9 @@
 
 int receiveStage(int fd, char *str);
 
-// data structure to store the status of every station and segment
-struct dataStatus{
+struct dataArrays{
     int stations[8];
     int segments[16];
-};
-
-// data structure to store train data
-struct dataTrain{
-    char name[3];
-    int first_station;
-    int destination;
-    int itinerary[5];
 };
 
 int main(int argc, char *argv[]) {
@@ -39,7 +30,7 @@ int main(int argc, char *argv[]) {
     unlink("serverRegisterPipe");
 
     printf("Server allocating data\n");
-    struct dataStatus dataServer;
+    struct dataArrays dataServer;
     for (int i = 0; i < 8; ++i)     dataServer.stations[i] = 0;
     for (int i = 0; i < 16; ++i)    dataServer.segments[i] = 0;
 

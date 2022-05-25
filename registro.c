@@ -6,17 +6,16 @@ int main(int argc, char *argv[]) {
 
     char* MAPPA = argv[1];
     char* ETCS = argv[2];
-    // printf("%s received from movementAuthority\n", ETCS);
 
-    // setting train number according to MAPPA
+    /* Setting train number according to MAPPA */
     const int numberOfTrains=(strcmp(argv[1], "MAPPA1") == 0) ? 4 : 5;
     
+    /* Hardcoding itineraries */
     char * M1itineraryT1[] = {"S1", "MA1", "MA2", "MA3", "MA8", "S6"};
     char * M1itineraryT2[] = {"S2", "MA5", "MA6", "MA7", "MA3", "MA8", "S6"};
     char * M1itineraryT3[] = {"S7", "MA13", "MA12", "MA11", "MA10", "MA9", "S3"};
     char * M1itineraryT4[] = {"S4", "MA14", "MA15", "MA16", "MA12", "S8"};
     char * M1itineraryT5[] = {NULL};
-
 
     char * M2itineraryT1[] = {"S2", "MA5", "MA6", "MA7", "MA3", "MA8", "S6"};
     char * M2itineraryT2[] = {"S3", "MA9", "MA10", "MA11", "MA12", "S8"};
@@ -25,9 +24,9 @@ int main(int argc, char *argv[]) {
     char * M2itineraryT5[] = {"S5", "MA4", "MA3", "MA2", "MA1", "S1"};
     
     int itineraryRequestPipe_fd;
-    char mapRequest[7];
     
-    //TODO: sending all itineraries to serverRBC
+    //TODO: sending all itineraries to serverRBC if ETCS2
+    char mapRequest[7];
     if(strcmp(ETCS, "ETCS2") == 0) {
         // opening pipe with server in read-only mode
         itineraryRequestPipe_fd = open("serverRegisterPipe",O_RDONLY);
@@ -78,36 +77,35 @@ int main(int argc, char *argv[]) {
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendStation(M2itineraryT5[0], "serverRegisterPipe", SIZEOF(M2itineraryT5[0]));
         }
+        printf("register sent stations to server\n");
     }
 
-    printf("regiser sent stations to server\n");
-    
-    // preparing to receive requests from trains
+    /* Preparing to receive requests from trains */
     char receivedRequest[5];
     int satisfiedRequests = 0;
     char requestPipeName[30];
 
+    /* Wait for request from a train and assign itinerary to it when received,
+        repeat it until every train send a request and receive its itinerary */
     while(satisfiedRequests < numberOfTrains) {
         printf("Register creating pipe to send itinerary to trains\n");
-        //Create and open pipe for receiving itinerary from a train
+
+        // Create and open pipe for receiving itinerary from a train
         sprintf(requestPipeName, "T%ditineraryRequestPipe", satisfiedRequests + 1);
         unlink(requestPipeName);
         mknod(requestPipeName, S_IFIFO, 0);
         chmod(requestPipeName, 0660);
 
         itineraryRequestPipe_fd = open(requestPipeName, O_RDONLY);
-        // printf("waiting for requests...\n");
 
         waitForRequest(itineraryRequestPipe_fd, receivedRequest);
         printf("Request for itinerary from %s received\n", receivedRequest);
 
-        // preparing to send itinerary
+        // Preparing to send the correct itinerary according to the request received 
         int i;
         i = assignItinerary(receivedRequest);
-        
-        // printf("sto per inviare a T%d\n", i);
 
-        // send itinerary to train selecting it with MAPPA and i
+        // Send itinerary to train selecting it with MAPPA and i
         if(strcmp(MAPPA, "MAPPA1") == 0) {     
             if(i==1)sendItinerary(M1itineraryT1, 1, SIZEOF(M1itineraryT1));
             else if(i==2) sendItinerary(M1itineraryT2, 2, SIZEOF(M1itineraryT2));
@@ -126,24 +124,26 @@ int main(int argc, char *argv[]) {
         
         satisfiedRequests++;
 
-        // printf("%d requests have been satisfied\n", satisfiedRequests);
-
-        // close and remove pipe used
+        // Close and remove pipe used
         close(itineraryRequestPipe_fd);
         unlink(requestPipeName);
     }
 
     sleep(1); /* wait a while that all trains collect their stages */
     
-    // SIGCONT to stopped trains before terminating
-    printf("Register dying sending SIGCONT to processes in group %d\n", getpgid(getpid()));
+    /* Send a SIGCONT to stopped trains before terminating, 
+        when a train received its itinerary it stop itself with a SIGSTOP,
+        now they can resume execution */
+    // printf("Register dying sending SIGCONT to processes in group %d\n", getpgid(getpid()));
+    printf("Closing register...\nAll itineraries has been sent, trains can start their mission...\n");
     kill(0, SIGCONT);
 
     exit(EXIT_SUCCESS);
     return 0;
 }
 
-// function for reading from a pipe fd and compose string str
+/* This function read a /0 terminating sequence of char from a pipe fd 
+    and place them as a string at str */
 int waitForRequest(int fd, char *str) { 
     int n;
     do { /* Read characters until ’\0’ or end-of-input */
@@ -152,25 +152,25 @@ int waitForRequest(int fd, char *str) {
     return (n > 0); /* Return false if end-of-input */
 }
 
+/* This function send, one by one, the stages of an itineraries 
+    to the respective train, using the appropriate pipe */
 int sendItinerary(char* itinerary[], int r, int itineraryLen) {
     
-    // preparing to send into pipe
+    // Preparing to send into pipe
     int sendingToTrain_fd, stageLen, i;
     char itineraryPipeName[30];
     sprintf(itineraryPipeName,"T%dregisterPipe", r);
-
-    // printf("Using %s\n", itineraryPipeName);
     
-    do { // try open pipe until successful 
+    do { /* try open pipe until successful */
         sendingToTrain_fd = open (itineraryPipeName, O_WRONLY);
-        if (sendingToTrain_fd == -1) sleep (1); // Try again after one second if fail
+        if (sendingToTrain_fd == -1) sleep (1); /* Try again after one second if fails */
     } while (sendingToTrain_fd == -1);
 
     // Send all stages into pipe
     for (i = 0; i < itineraryLen; i++) { 
         char* tappa = itinerary[i];
         stageLen = strlen(tappa) + 1;
-        printf("Sending %s through pipe to train\n", tappa);
+        // printf("Sending %s through pipe to train\n", tappa);
         write(sendingToTrain_fd, tappa, stageLen);   
     }
     close(sendingToTrain_fd);
@@ -178,8 +178,17 @@ int sendItinerary(char* itinerary[], int r, int itineraryLen) {
     return 0;
 }
 
+/* Function to assign which itinerary will be sent from register to train */
+int assignItinerary(char * request){
+    if(strcmp(request, "T1") == 0)          return 1;
+    else if (strcmp(request, "T2") == 0)    return 2;
+    else if (strcmp(request, "T3") == 0)    return 3;
+    else if (strcmp(request, "T4") == 0)    return 4;
+    else if (strcmp(request, "T5") == 0)    return 5;
+    else                                    return -1;  
+}
+
 int sendStation(char* itinerary, char * pipe, int itineraryLen) {
-    
     // preparing to send into pipe
     int sendingToServer_fd, stageLen, i;
 
@@ -197,12 +206,3 @@ int sendStation(char* itinerary, char * pipe, int itineraryLen) {
     return 0;
 }
 
-// function to assign which itinerary will be sent from register to train
-int assignItinerary(char * request){
-    if(strcmp(request, "T1") == 0)          return 1;
-    else if (strcmp(request, "T2") == 0)    return 2;
-    else if (strcmp(request, "T3") == 0)    return 3;
-    else if (strcmp(request, "T4") == 0)    return 4;
-    else if (strcmp(request, "T5") == 0)    return 5;
-    else                                    return -1;  
-}

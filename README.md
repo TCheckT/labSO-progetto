@@ -22,6 +22,13 @@ Implementato management file di log dei treni
 
 Implementata socket lato server e inizio lavoro a comunicazione registro-server
 
+// 24.05.2022
+
+Criticità: 
+- riga 148 registro.c, funzione waitForRequest. Se processo treno non avesse già  fatto la richiesta? ritornerebbe falso?
+- si possono mettere in header la funzione receiveStage di processo_treno e la funzione waitForRequest di registro per ridurre duplicazione di codice e chiamare la funzione receiveFromPipe()
+
+
 //DONE:
 - scansione argomenti input e controllo formato [ECTS1/2][PBR][MAPPA1/2]
 - creazione processo PADRE_TRENI come figlio processo main
