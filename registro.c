@@ -25,61 +25,67 @@ int main(int argc, char *argv[]) {
     
     int itineraryRequestPipe_fd;
     
+    printf("ETCS:%s\n",ETCS);
     //TODO: sending all itineraries to serverRBC if ETCS2
-    char mapRequest[7];
-    if(strcmp(ETCS, "ETCS2") == 0) {
-        // opening pipe with server in read-only mode
-        itineraryRequestPipe_fd = open("serverRegisterPipe",O_RDONLY);
-        // getting the server map request
-        waitForRequest(itineraryRequestPipe_fd, mapRequest);
-        // closing pipe
-        unlink("serverRegisterPipe");
-
-        itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
-        mknod("serverRegisterPipe", S_IFIFO, 0);
-        chmod("serverRegisterPipe", 0660);
-
-        if (strcmp(mapRequest,"MAPPA1")==0)
+    if(strcmp(ETCS, "ETCS2") == 0)
+    {
+        if (strcmp(MAPPA,"MAPPA1")==0)
         {
             sleep(1);
+            printf("Sending itinerary T1 to server\n");
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
-            //sendStation(M1itineraryT1[0], "serverRegisterPipe", SIZEOF(M1itineraryT1[0]));
+            sendItinerary(M1itineraryT1, "serverRegisterPipe", SIZEOF(M1itineraryT1));
+            close(itineraryRequestPipe_fd);
+            
+            sleep(1);
+            printf("Sending itinerary T2 to server\n");
+            itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
+            sendItinerary(M1itineraryT2, "serverRegisterPipe", SIZEOF(M1itineraryT2));
+            close(itineraryRequestPipe_fd);
 
             sleep(1);
+            printf("Sending itinerary T3 to server\n");
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
-            //sendStation(M1itineraryT2[0], "serverRegisterPipe", SIZEOF(M1itineraryT2[0]));
+            sendItinerary(M1itineraryT3, "serverRegisterPipe", SIZEOF(M1itineraryT3));
+            close(itineraryRequestPipe_fd);
 
             sleep(1);
+            printf("Sending itinerary T4 to server\n");
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
-            //sendStation(M1itineraryT3[0], "serverRegisterPipe", SIZEOF(M1itineraryT3[0]));
-
-            sleep(1);
-            itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
-            //sendStation(M1itineraryT4[0], "serverRegisterPipe", SIZEOF(M1itineraryT4[0]));
+            sendItinerary(M1itineraryT4, "serverRegisterPipe", SIZEOF(M1itineraryT4));
+            close(itineraryRequestPipe_fd);
         }else {
             sleep(1);
+            printf("Sending itinerary T1 to server\n");
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
-            //sendStation(M2itineraryT1[0], "serverRegisterPipe", SIZEOF(M2itineraryT1[0]));
+            sendItinerary(M2itineraryT1, "serverRegisterPipe", SIZEOF(M2itineraryT1));
+            close(itineraryRequestPipe_fd);
+            
+            sleep(1);
+            printf("Sending itinerary T2 to server\n");
+            itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
+            sendItinerary(M2itineraryT2, "serverRegisterPipe", SIZEOF(M2itineraryT2));
+            close(itineraryRequestPipe_fd);
 
             sleep(1);
+            printf("Sending itinerary T3 to server\n");
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
-            //sendStation(M2itineraryT2[0], "serverRegisterPipe", SIZEOF(M2itineraryT2[0]));
+            sendItinerary(M2itineraryT3, "serverRegisterPipe", SIZEOF(M2itineraryT3));
+            close(itineraryRequestPipe_fd);
 
             sleep(1);
+            printf("Sending itinerary T4 to server\n");
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
-            //sendStation(M2itineraryT3[0], "serverRegisterPipe", SIZEOF(M2itineraryT3[0]));
+            sendItinerary(M2itineraryT4, "serverRegisterPipe", SIZEOF(M2itineraryT4));
+            close(itineraryRequestPipe_fd);
 
             sleep(1);
+            printf("Sending itinerary T5 to server\n");
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
-            //sendStation(M2itineraryT4[0], "serverRegisterPipe", SIZEOF(M2itineraryT4[0]));
-
-            sleep(1);
-            itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
-            //sendStation(M2itineraryT5[0], "serverRegisterPipe", SIZEOF(M2itineraryT5[0]));
-        }
-        printf("register sent stations to server\n");
+            sendItinerary(M2itineraryT5, "serverRegisterPipe", SIZEOF(M2itineraryT5));
+            close(itineraryRequestPipe_fd);
+        } 
     }
-
     /* Preparing to receive requests from trains */
     char receivedRequest[5];
     int satisfiedRequests = 0;
@@ -164,27 +170,26 @@ int waitForRequest(int fd, char *str) {
 
 /* This function send, one by one, the stages of an itineraries 
     to the respective train, using the appropriate pipe */
-int sendItinerary(char* itinerary[], char itineraryPipeName[], int itineraryLen) {
+int sendItinerary(char* itinerary[], char pipeName[], int itineraryLen) {
     
     // Preparing to send into pipe
-    int sendingToTrain_fd, stageLen, i;
- //   char itineraryPipeName[30];
-   // sprintf(itineraryPipeName,"T%dregisterPipe", r);
+    int fd, stageLen, i;
     
     do { /* try open pipe until successful */
-        sendingToTrain_fd = open (itineraryPipeName, O_WRONLY);
-        if (sendingToTrain_fd == -1) sleep (1); /* Try again after one second if fails */
-    } while (sendingToTrain_fd == -1);
+        fd = open (pipeName, O_WRONLY);
+        if (fd == -1) sleep (1); /* Try again after one second if fails */
+    } while (fd == -1);
 
     // Send all stages into pipe
     for (i = 0; i < itineraryLen; i++) { 
         char* tappa = itinerary[i];
         stageLen = strlen(tappa) + 1;
         // printf("Sending %s through pipe to train\n", tappa);
-        write(sendingToTrain_fd, tappa, stageLen);   
+        sleep(0.5);
+        write(fd, tappa, stageLen);   
     }
-    close(sendingToTrain_fd);
-    unlink(itineraryPipeName);
+    close(fd);
+    unlink(pipeName);
     return 0;
 }
 
@@ -197,21 +202,3 @@ int assignItinerary(char * request){
     else if (strcmp(request, "T5") == 0)    return 5;
     else                                    return -1;  
 }
-/*
-int sendStation(char* itinerary, char * pipe, int itineraryLen) {
-    // preparing to send into pipe
-    int sendingToServer_fd, stageLen, i;
-
-    do { // try open pipe until successful 
-        sendingToServer_fd = open ( pipe, O_WRONLY);
-        if (sendingToServer_fd == -1) sleep (1); // Try again after one second if fail
-    } while (sendingToServer_fd == -1);
-
-    stageLen = strlen(itinerary) + 1;
-    printf("Sending %s through pipe to server\n", itinerary);
-    write(sendingToServer_fd, itinerary, stageLen);   
-
-    close(sendingToServer_fd);
-    //unlink(pipe);
-    return 0;
-}*/

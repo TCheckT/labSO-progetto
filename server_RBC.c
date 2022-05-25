@@ -7,27 +7,19 @@ struct dataArrays{
     int segments[16];
 };
 
+struct dataTrain{
+    char name[3];
+    /*int first_station;
+    int destination;
+    int itinerary[5];*/
+    char itinerary[10][5];
+};
+
 int main(int argc, char *argv[]) {
 
     const int numberOfTrains=(strcmp(argv[1], "MAPPA1") == 0) ? 4 : 5;
 
     printf("Server starting with map: %s\n", argv[1]);
-
-    printf("Server creating pipe with register\n");
-    // eventually unlinking pipe (in case it already exists)
-    unlink("serverRegisterPipe");
-    // (re)creating pipe
-    mknod("serverRegisterPipe", S_IFIFO, 0);
-    // setting access permission on pipe 
-    chmod("serverRegisterPipe", 0660);
-
-    printf("Server opens pipe with register in write mode\n");
-    //opening pipe
-    int itineraryRequestPipe_fd = open("serverRegisterPipe", O_WRONLY);
-    // writing the map's name
-    write(itineraryRequestPipe_fd, argv[1], 7);
-    // closing pipe
-    unlink("serverRegisterPipe");
 
     printf("Server allocating data\n");
     struct dataArrays dataServer;
@@ -35,24 +27,45 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < 16; ++i)    dataServer.segments[i] = 0;
 
 
-    printf("Server accepting stations from register\n");
-    /*  [x] for i = 0 ... numberOfTrains
-    *   [x]     read station from pipe 
-    *   [ ]     atoi -> recieved
-    *   [ ]     increments station in struct dataserver.station[recieved]
-    */
-    char station[5];
+    printf("Declaring data structure for trains data\n");
+    struct dataTrain treni[5];
+
     for (int i = 0; i < numberOfTrains; ++i)
     {
+        char receivedStage[5];
+
+        sprintf(treni[i].name, "T%d", i+1);
+
+        printf("Creating pipe between server and register\n");
+        unlink("serverRegisterPipe");
         mknod("serverRegisterPipe", S_IFIFO, 0);
         chmod("serverRegisterPipe", 0660);
-        itineraryRequestPipe_fd = open("serverRegisterPipe", O_RDONLY);
-        receiveStage(itineraryRequestPipe_fd, station);
-        printf("Server recieved station:%s\n", station);
+
+        printf("Opening pipe in read only mode\n");
+        
+        int itineraryRequestPipe_fd = open("serverRegisterPipe", O_RDONLY);
+
+        printf("Accepting route for T%d\n", i+1);
+
+        int stagesNumber = 0;
+        while(receiveStage(itineraryRequestPipe_fd,receivedStage)) 
+        {
+            printf("Server recieved stage %s from register\n", receivedStage);
+            
+            strcpy(treni[i].itinerary[stagesNumber], receivedStage);
+            
+            printf("Stage %s saved into T%d route\n\n", receivedStage, i+1);
+            stagesNumber++;
+        }
+
+        for (int j = 0; j < SIZEOF(treni[i].itinerary); ++j)printf("%s\n", treni[i].itinerary[j]);
+
+        printf("T%d route recieved\n", i+1);
+
         unlink("serverRegisterPipe");
     }
 
-    printf("Setting up socket...\n");
+        printf("Setting up socket...\n");
     sleep(2);
 
     // socket()
@@ -102,6 +115,6 @@ int receiveStage(int fd, char *str){
     int n;
     do {
         n = read(fd, str, 1);
-    } while(n > 0 && *str++ != '\0');
+    } while(((n > 0) && (*str++ != '\0')));
     return (n > 0);
 }
