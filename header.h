@@ -32,4 +32,4 @@ int sendItinerary(char* itinerario[], char numeroTreno[], int lunghezzaItinerari
 int assignItinerary(char[]);
 
 //processo_treno
-int requestAccessTo(char step[5], const char* MODE);
+//int requestAccessTo(char step[5], const char* MODE);
