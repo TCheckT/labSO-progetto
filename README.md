@@ -28,6 +28,15 @@ Criticità:
 - riga 148 registro.c, funzione waitForRequest. Se processo treno non avesse già  fatto la richiesta? ritornerebbe falso?
 - si possono mettere in header la funzione receiveStage di processo_treno e la funzione waitForRequest di registro per ridurre duplicazione di codice e chiamare la funzione receiveFromPipe()
 
+// 25.05.2022
+
+TODO: 
+1-Sistemare cose santo
+2-mettere in header funzione ricezione da pipe o socket
+3-interruzioni SIGUSR1 e SIGUSR2
+4-controllo profondo
+5-sistemare header, magari dividerlo in più di uno
+6-preparare makefile install
 
 //DONE:
 - scansione argomenti input e controllo formato [ECTS1/2][PBR][MAPPA1/2]

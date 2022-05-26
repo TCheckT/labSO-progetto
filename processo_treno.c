@@ -2,9 +2,9 @@
 
 void signalHandler(int signum);
 
-int requestAccessTo(char step[5], const char* MODE, int clientFd);
+int requestAccessTo(char step[5], const char* MODE, int clientFd, const char* trainNumber);
 
-int readLine (int fd, char *str) {
+int readMessage (int fd, char *str) {
     /* Read a single ’\0’-terminated line into str from fd */
     int n;
     do { /* Read characters until ’\0’ or end-of-input */
@@ -16,8 +16,9 @@ int readLine (int fd, char *str) {
 
 int readString (int fd) {
     char str[200];
-    while (readLine (fd, str)) /* Read lines until end-of-input */
+    while (readMessage (fd, str)) /* Read lines until end-of-input */
     printf ("%s\n", str); /* Echo line from socket */
+    return 0;
 }
 
  
@@ -38,9 +39,9 @@ int main(int argc, char const *argv[]) {
         // socket()
         serverSockAddrPtr = (struct sockaddr*) &serverUNIXAddress;
         serverLen = sizeof (serverUNIXAddress);
-        clientFd = socket (AF_UNIX, SOCK_STREAM, 0);
+        //clientFd = socket (AF_UNIX, SOCK_STREAM, 0);
         serverUNIXAddress.sun_family = AF_UNIX; /* Server domain */
-        strcpy (serverUNIXAddress.sun_path, "authorization");/*Server name*/
+        strcpy (serverUNIXAddress.sun_path, "authorization"); /*Server name*/
     } else {
         clientFd = 0;
     }
@@ -48,7 +49,7 @@ int main(int argc, char const *argv[]) {
 
     /* Preparing request message for process registro to ask for the itinerary */
     int itineraryRequestPipe_fd, requestLen; 
-    char request [5];
+    char request[5];
 	sprintf(request, "T%s", trainNumber);
     requestLen = strlen (request) + 1;
 
@@ -103,7 +104,6 @@ int main(int argc, char const *argv[]) {
     */
 
     /* TRAIN MISSION */
-    int trainID = atoi(trainNumber);
 
     /* Preparing to start mission */
     // Create logFile
@@ -126,6 +126,8 @@ int main(int argc, char const *argv[]) {
     char * nextStage;
     int j = 0;
     
+
+
     while(j < stagesNumber) {
         /* Wait for my turn to access track files,
             turnation is managed by process turn_manager,
@@ -159,7 +161,7 @@ int main(int argc, char const *argv[]) {
         fwrite(logUpdate, sizeof(char), strlen(logUpdate), logFile);
 
         // B. Request authorization to access the segment or station
-
+        clientFd = socket (AF_UNIX, SOCK_STREAM, 0);
         //first connect to server
         if(strcmp(ETCS, "ETCS2") == 0) {
             do { /* Loop until a connection is made with the server */
@@ -173,7 +175,7 @@ int main(int argc, char const *argv[]) {
 
         printf("Server ready, T%s is asking authorization\n", trainNumber);
 
-        int authorization = requestAccessTo(nextStage, ETCS, clientFd);
+        int authorization = requestAccessTo(nextStage, ETCS, clientFd, trainNumber);
         
         if (authorization == 2) { /* If nextStage is a station */
             printf("T%s: Access to %s authorized\n", trainNumber, nextStage);  
@@ -216,11 +218,13 @@ int main(int argc, char const *argv[]) {
             perror("authorization error\n");
             exit(EXIT_FAILURE);
         }
-
+        close (clientFd);
         // C. sleep 2 seconds
         sleep(2);
         // D. repeat from A
     }
+    /* Close the socket */
+    
 
     /* Last update to logFile before terminating */
     strftime (dateAndTime, 30, "%d %B %Y %X",timeinfo);
@@ -230,6 +234,7 @@ int main(int argc, char const *argv[]) {
     fwrite(logUpdate, sizeof(char), strlen(logUpdate), logFile);
 
     fclose(logFile);
+    
 
     printf("Treno T%s terminate its mission!!! CONGRATULAZIONI! clap, clap, clap...\n", trainNumber);
 
@@ -252,7 +257,7 @@ int receiveStage(int fd, char *str){
     return 2 if access to a station is authorized
     return 1 if access to a track is authorized 
     return 0 if access to next stage is not authorized */    
-int requestAccessTo(char stage[5], const char* ETCS, int clientFd){
+int requestAccessTo(char stage[5], const char* ETCS, int clientFd, const char* trainNumber){
    
     printf("Requesting access for %s\n", stage);
 
@@ -282,16 +287,21 @@ int requestAccessTo(char stage[5], const char* ETCS, int clientFd){
         return 0;
 
     } else if (strcmp(ETCS, "ETCS2") == 0) {
-        // request server authorization to access to stage
+        /* Request to server the authorization to access stage */
+            
+        // First send train number...
+        write(clientFd, trainNumber, strlen(trainNumber) + 1);
+        // ... then send requested stage
+        write(clientFd, stage, strlen(stage) + 1);
 
+        // Read answer from server, that will be 0, 1 or 2
+        char str[3];
+        readMessage(clientFd, str);
+        printf("%s\n", str);
 
-
-        // receive server response
-        readString (clientFd); /* Read the authorization */
-        close (clientFd); /* Close the socket */
-
-        printf("missing server request implementation\n");
-        return -1;
+        // convert answer to int
+        int authorization = atoi(str);
+        return authorization;
     } else {
         perror("MODE not recognized\n");
         exit(EXIT_SUCCESS);
