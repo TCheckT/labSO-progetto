@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
         /* wait for padre_treni to terminate */
         wait(NULL);
     }
-    printf("\nmovementAuthority: END OF PROGRAM! Shutdown...\n");
+    printf("\nmovementAuthority: process terminated...\nEND OF PROGRAM!\n");
     return 0;
 }
 

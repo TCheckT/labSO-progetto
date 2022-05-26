@@ -2,8 +2,7 @@
 
 int main(int argc, char const *argv[]) {
     /* This process will alternate the content of a file, writing a different
-        number in it every second cycling from 1 to numberOfTrains */
-    printf("TRAIN MANAGER LAUNCHED\n");
+        number in it every second cycling from 1 to 4 or 5 according to MAPPA */
     
     const char* MAPPA = argv[1];
 
@@ -13,7 +12,7 @@ int main(int argc, char const *argv[]) {
     FILE* trackFilesGuard;
     int turn = 0;
     trackFilesGuard = fopen("trackFilesGuard", "w");
-    chmod("trackFilesGuard", 0666);
+    chmod("trackFilesGuard", 0644);
     fclose(trackFilesGuard);
 
     while(1) { /* Loop until movementAuthority process send SIGINT */
@@ -23,7 +22,7 @@ int main(int argc, char const *argv[]) {
         // put turn here
         sprintf(nextTurn, "%d", (turn%numberOfTrains)+1);       
         fwrite(nextTurn, sizeof(char), 1, trackFilesGuard);
-        printf("Turn: T%s\n", nextTurn);
+        // printf("turn_manager: turn T%s\n", nextTurn);
         fclose(trackFilesGuard);
         turn = (turn%numberOfTrains)+1;
         sleep(1);

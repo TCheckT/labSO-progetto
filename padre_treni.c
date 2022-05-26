@@ -19,7 +19,8 @@ int main(int argc, char *argv[]) {
     // create files that represent tracks segments
     if(createTracks()!=0)
         perror("Error: binary segments not created correctly\n");
-    
+    printf("padre_treni: MAx files created\n");
+
     //launch turn_manager
     pid_t turn_manager;
 
@@ -28,10 +29,11 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Fork failed\n");
         exit(EXIT_FAILURE);
     } else if (turn_manager == 0) {
-        // execute turn_manager
+        // exec turn_manager with MAPPA as argument
+        printf("padre_treni: exec turn_manager\n");
         execl("./turn_manager", "turn_manager", MAPPA, NULL);
     } 
-    // padre_treni continues 
+    /* process movementAuthority continues */
 
     /* Before creating trains, if ETCS2 mode, padre treni will receive serverRBC pid */
     int clientFd, serverLen, result;
@@ -48,17 +50,18 @@ int main(int argc, char *argv[]) {
         serverUNIXAddress.sun_family = AF_UNIX; /* Server domain */
         strcpy (serverUNIXAddress.sun_path, "authorization"); /*Server name*/
         clientFd = socket (AF_UNIX, SOCK_STREAM, 0);
+        printf("padre_treni: waiting for server to setup socket and accept connection to receive its pid...\n");
         do { /* Loop until a connection is made with the server */
             result = connect (clientFd, serverSockAddrPtr, serverLen);
             if (result == -1){
-                printf("padre_treni: waiting for server to setup socket and receive its pid...\n");
+                printf("padre_treni: ...\n");
                 sleep (1); /* Wait and then try again */
             }
         } while (result == -1);
 
-        char serverPid[10000];
+        char serverPid[1000];
         readMessage(clientFd, serverPid);
-        printf("serverPid: %s\n", serverPid);
+        printf("padre_treni: server_RBC pid received.\n");
         serverRBC = atoi(serverPid);
     }
 
@@ -76,52 +79,54 @@ int main(int argc, char *argv[]) {
             exit(EXIT_FAILURE);
         }
         else if(train[i] == 0) {
-            // execute a train process 
+            // exec a processo_treno with trainNUmber, MAPPA and ETCS as arguments
             char trainNumber[5];
             sprintf(trainNumber, "%d",i+1);
+            printf("padre_treni: exec processo_treno T%s\n", trainNumber);
             execl("./processo_treno", "processo_treno", trainNumber, ETCS, NULL);
         }
     }
-    // wait for all children to finish
-   /* wait(NULL);
-    wait(NULL);
-    wait(NULL);
-    wait(NULL);
-    if(numberOfTrains == 5) wait(NULL); */
-    /* ATTEMPT TO REALIZE OPTIONAL TASK 2: supposed to use SIGUSR1*/
+    
+    /* padre_treni waits here until every train finish its mission and send SIGUSR1 signal to padre_treni
+        when a SIGUSR1 signal is received the handler function will increment the global variable signalCounter
+        when 4 or 5 signals are received, depending on which MAPPA was launched, padre_treni can continue. */
     while(signalCounter < numberOfTrains);
 
-    /* Kill server_RBC process that sent its pid at the beginning when all trains terminate
-        their missions */
+    /* Tell to server_RBC process to terminate with a SIGUSR2 
+        server_RBC sent its pid at the beginning */
     if (strcmp(ETCS, "ETCS2") == 0) {
         kill(serverRBC, SIGUSR2);
     }
 
+    /* Terminate process turn_manager before terminating */
     kill(turn_manager, SIGKILL);
+
+    printf("\npadre_treni: process terminated...\n");
 
     exit(EXIT_SUCCESS);
     return 0;
 }
 
 int createTracks() {
-    FILE * file; //buffer for file operations
+    /* Creating all the 16 files that represent tracks segments */
+    FILE * file;
     char name[5];
 
     for (int i = 1; i <= 16; ++i)
     {   
-        //generating the name of the file MAx with metavariables
+        // Generating the name of the file MAx with metavariables
         sprintf(name, "MA%d",i);
 
-        //opening the file in write-only mode
+        // Opening the file
         file = fopen(name, "w");
 
-        //setting access permissions
+        // Setting access permissions
         chmod(name , 0666);
 
-        // writing 0 as a first character in every file
+        // Writing 0 as first character
         fwrite("0", sizeof(char), 1, file);
 
-        //closing files
+        // Closing file
         fclose(file);
     }
     return 0;
@@ -135,12 +140,3 @@ int readMessage (int fd, char *str) {
     } while (n > 0 && *str++ != '\0');
     return (n > 0); 
 }
-
-/* ATTEMPT TO REALIZE OPTIONAL TASK 2: supposed to use SIGUSR1
-void trainEndMissionHandler(int signum) {
-    
-    wait(NULL);
-    //printf("Ricevo %d° SIGUSR1!\n", ++signalCounter);
-    //sleep(1);
-}
-*/

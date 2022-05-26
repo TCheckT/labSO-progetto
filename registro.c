@@ -1,6 +1,8 @@
 #include "header.h"
 
 int main(int argc, char *argv[]) {
+    /* registro contains all itineraries for both MAPPAs and send them
+        to processes that make a request through pipes */
 
     char* MAPPA = argv[1];
     char* ETCS = argv[2];
@@ -23,67 +25,69 @@ int main(int argc, char *argv[]) {
     
     int itineraryRequestPipe_fd;
     
-    // printf("ETCS:%s\n",ETCS);
-    /* Send all itineraries to serverRBC if ETCS2 mode */
-    if(strcmp(ETCS, "ETCS2") == 0)
-    {
-        if (strcmp(MAPPA,"MAPPA1")==0)
-        {
+    /* If ETCS2 mode, server_RBC need all itineraries of the MAPPA
+        before starting to accept trains requests.
+        registro send all itineraries to serverRBC */
+    if(strcmp(ETCS, "ETCS2") == 0) {
+        if (strcmp(MAPPA,"MAPPA1")==0) {
             sleep(1);
-            printf("Sending itinerary T1 to server\n");
+            printf("registro: sending itinerary T1 to server\n");
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendItinerary(M1itineraryT1, "serverRegisterPipe", SIZEOF(M1itineraryT1));
             close(itineraryRequestPipe_fd);
             
             sleep(1);
-            printf("Sending itinerary T2 to server\n");
+            printf("registro: sending itinerary T2 to server\n");
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendItinerary(M1itineraryT2, "serverRegisterPipe", SIZEOF(M1itineraryT2));
             close(itineraryRequestPipe_fd);
 
             sleep(1);
-            printf("Sending itinerary T3 to server\n");
+            printf("registro: sending itinerary T3 to server\n");
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendItinerary(M1itineraryT3, "serverRegisterPipe", SIZEOF(M1itineraryT3));
             close(itineraryRequestPipe_fd);
 
             sleep(1);
-            printf("Sending itinerary T4 to server\n");
+            printf("registro: sending itinerary T4 to server\n");
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendItinerary(M1itineraryT4, "serverRegisterPipe", SIZEOF(M1itineraryT4));
             close(itineraryRequestPipe_fd);
-        }else {
+        } else {
             sleep(1);
-            printf("Sending itinerary T1 to server\n");
+            printf("registro: sending itinerary T1 to server\n");
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendItinerary(M2itineraryT1, "serverRegisterPipe", SIZEOF(M2itineraryT1));
             close(itineraryRequestPipe_fd);
             
             sleep(1);
-            printf("Sending itinerary T2 to server\n");
+            printf("registro: sending itinerary T2 to server\n");
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendItinerary(M2itineraryT2, "serverRegisterPipe", SIZEOF(M2itineraryT2));
             close(itineraryRequestPipe_fd);
 
             sleep(1);
-            printf("Sending itinerary T3 to server\n");
+            printf("registro: sending itinerary T3 to server\n");
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendItinerary(M2itineraryT3, "serverRegisterPipe", SIZEOF(M2itineraryT3));
             close(itineraryRequestPipe_fd);
 
             sleep(1);
-            printf("Sending itinerary T4 to server\n");
+            printf("registro: sending itinerary T4 to server\n");
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendItinerary(M2itineraryT4, "serverRegisterPipe", SIZEOF(M2itineraryT4));
             close(itineraryRequestPipe_fd);
 
             sleep(1);
-            printf("Sending itinerary T5 to server\n");
+            printf("registro: sending itinerary T5 to server\n");
             itineraryRequestPipe_fd = open("serverRegisterPipe",O_WRONLY);
             sendItinerary(M2itineraryT5, "serverRegisterPipe", SIZEOF(M2itineraryT5));
             close(itineraryRequestPipe_fd);
         } 
+        printf("registro: all itineraries have been sent to server_RBC\n");
     }
+
+    
     /* Preparing to receive requests from trains */
     char receivedRequest[5];
     int satisfiedRequests = 0;
@@ -92,8 +96,6 @@ int main(int argc, char *argv[]) {
     /* Wait for request from a train and assign itinerary to it when received,
         repeat it until every train send a request and receive its itinerary */
     while(satisfiedRequests < numberOfTrains) {
-        // printf("Register creating pipe to send itinerary to trains\n");
-
         // Create and open pipe for receiving itinerary from a train
         sprintf(requestPipeName, "T%ditineraryRequestPipe", satisfiedRequests + 1);
         unlink(requestPipeName);
@@ -103,54 +105,54 @@ int main(int argc, char *argv[]) {
         itineraryRequestPipe_fd = open(requestPipeName, O_RDONLY);
 
         waitForRequest(itineraryRequestPipe_fd, receivedRequest);
-        // printf("Request for itinerary from %s received\n", receivedRequest);
+        printf("registro: request from %s received\n", receivedRequest);
 
         // Preparing to send the correct itinerary according to the request received 
-        int i;
-        i = assignItinerary(receivedRequest);
+        int selectedTrain;
+        selectedTrain = assignItinerary(receivedRequest);
 
-        // Send itinerary to train selecting it with MAPPA and i
+        // Send itinerary to train selecting it with MAPPA and selectedTrain
         if(strcmp(MAPPA, "MAPPA1") == 0) {     
-            if(i==1){
+            if(selectedTrain==1){
                 sendItinerary(M1itineraryT1, "T1registerPipe", SIZEOF(M1itineraryT1));
-            }else if(i==2) {
+            }else if(selectedTrain==2) {
                 sendItinerary(M1itineraryT2, "T2registerPipe", SIZEOF(M1itineraryT2));
-            }else if(i==3) {
+            }else if(selectedTrain==3) {
                 sendItinerary(M1itineraryT3, "T3registerPipe", SIZEOF(M1itineraryT3));
-            }else if(i==4) {
+            }else if(selectedTrain==4) {
                 sendItinerary(M1itineraryT4, "T4registerPipe", SIZEOF(M1itineraryT4));
-            }else if(i==5) {
+            }else if(selectedTrain==5) {
                 sendItinerary(M1itineraryT5, "T5registerPipe", SIZEOF(M1itineraryT5));
             }else perror("Error: unexpected request");
         } else if (strcmp(MAPPA, "MAPPA2") == 0) {
-            if(i==1) {
+            if(selectedTrain==1) {
                 sendItinerary(M2itineraryT1, "T1registerPipe", SIZEOF(M2itineraryT1));
-            }else if(i==2) {
+            }else if(selectedTrain==2) {
                 sendItinerary(M2itineraryT2, "T2registerPipe", SIZEOF(M2itineraryT2));
-            }else if(i==3) {
-                sendItinerary(M2itineraryT3,"T3registerPipe", SIZEOF(M2itineraryT3));
-            }else if(i==4) {
+            }else if(selectedTrain==3) {
+                sendItinerary(M2itineraryT3, "T3registerPipe", SIZEOF(M2itineraryT3));
+            }else if(selectedTrain==4) {
                 sendItinerary(M2itineraryT4, "T4registerPipe", SIZEOF(M2itineraryT4));
-            }else if(i==5) {
+            }else if(selectedTrain==5) {
                 sendItinerary(M2itineraryT5, "T5registerPipe", SIZEOF(M2itineraryT5));
             }else perror("Error: unexpected request");
         } else perror("Error: MAPPA not recognized\n");
         
         satisfiedRequests++;
-
+        printf("registro: itinerary for T%d has been sent\n", selectedTrain);
         // Close and remove pipe used
         close(itineraryRequestPipe_fd);
         unlink(requestPipeName);
     }
-
     sleep(1); /* wait a while that all trains collect their stages */
     
+    printf("registro: All itineraries has been sent, trains can start their mission...\n");
     /* Send a SIGCONT to stopped trains before terminating, 
         when a train received its itinerary it stop itself with a SIGSTOP,
         now they can resume execution */
-    // printf("Register dying sending SIGCONT to processes in group %d\n", getpgid(getpid()));
-    printf("Closing register...\nAll itineraries has been sent, trains can start their mission...\n");
     kill(0, SIGCONT);
+    
+    printf("\nregistro: process terminated...\n");
 
     exit(EXIT_SUCCESS);
     return 0;
@@ -180,11 +182,11 @@ int sendItinerary(char* itinerary[], char pipeName[], int itineraryLen) {
 
     // Send all stages into pipe
     for (i = 0; i < itineraryLen; i++) { 
-        char* tappa = itinerary[i];
-        stageLen = strlen(tappa) + 1;
-        // printf("Sending %s through pipe to train\n", tappa);
+        char* stage = itinerary[i];
+        stageLen = strlen(stage) + 1;
+        // printf("Sending %s through pipe to train\n", stage);
         sleep(0.5);
-        write(fd, tappa, stageLen);   
+        write(fd, stage, stageLen);   
     }
     close(fd);
     unlink(pipeName);

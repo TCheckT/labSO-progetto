@@ -24,20 +24,27 @@ Implementata socket lato server e inizio lavoro a comunicazione registro-server
 
 // 24.05.2022
 
-Criticità: 
-- riga 148 registro.c, funzione waitForRequest. Se processo treno non avesse già  fatto la richiesta? ritornerebbe falso?
-- si possono mettere in header la funzione receiveStage di processo_treno e la funzione waitForRequest di registro per ridurre duplicazione di codice e chiamare la funzione receiveFromPipe()
-
 // 25.05.2022
 
+// 26.05.2022
+
+
+
+Cose da far notare nella relazione:
+- codice in inglese con alcune keyword del testo del progetto mantenute in italiano
+- in ETCS2 si possono lanciare server e processo normale in qualsiasi ordine dato che padre treni aspetta il pid del server e il server aspetta registro
+- far notare che con registro si comunica solo tramite pipe: la pipe per ricevere richieste dai treni viene ricreata ad ogni iterazione, le pipe usate da registro per mandare gli itinerari ad ogni treno sono invece create da movementAuthority e mai distrutte
+
+Criticità: 
+- riga 163 in registro.c, funzione waitForRequest. Se processo treno non avesse già  fatto la richiesta? ritornerebbe falso?
+- si possono mettere in header la funzione receiveStage di processo_treno e la funzione waitForRequest di registro per ridurre duplicazione di codice e chiamare la funzione receiveFromPipe()
+
 TODO: 
-1-Sistemare cose santo
-2-mettere in header funzione ricezione da pipe o socket
-3-interruzioni SIGUSR2
-4-controllo profondo
-5-sistemare header, magari dividerlo in più di uno
-6-preparare makefile install
-7- LOGFILE SERVER!!!!!!!!!!!!!!!!!!!!!!!!!!!
+-mettere in header funzione ricezione da pipe o socket, evitare duplicazione di codice il più possibile
+-controllo profondo
+-sistemare header, magari dividerlo in più di uno
+-preparare makefile install
+-problema deadlock mi sa che si è risolto da solo per come abbiamo implementato il tutto, se ne riparla...
 
 //DONE:
 - scansione argomenti input e controllo formato [ECTS1/2][PBR][MAPPA1/2]

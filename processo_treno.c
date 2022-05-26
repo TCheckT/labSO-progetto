@@ -1,6 +1,8 @@
 #include "header.h"
 
-void signalHandler(int signum);
+void signalHandler(int signum) {
+    //do nothing, just awake the train
+}
 
 int requestAccessTo(char step[5], const char* MODE, int clientFd, const char* trainNumber);
 
@@ -16,7 +18,7 @@ int readMessage (int fd, char *str) {
  
 int main(int argc, char const *argv[]) {
     
-    /* Install signal to synchronize trains in starting their mission */
+    /* Install signal SIGCONT to synchronize trains in starting their mission */
     signal(SIGCONT, signalHandler);
 
     const char * ETCS = argv[2];
@@ -37,16 +39,16 @@ int main(int argc, char const *argv[]) {
         clientFd = 0;
     }
 
-
     /* Preparing request message for process registro to ask for the itinerary */
     int itineraryRequestPipe_fd, requestLen; 
     char request[5];
 	sprintf(request, "T%s", trainNumber);
     requestLen = strlen (request) + 1;
 
-    /* Use the designated pipe created by process registro */
+    /* Use the designated pipe created by process registro to make request */
     char requestPipeName[30];
     sprintf(requestPipeName, "T%sitineraryRequestPipe", trainNumber);
+
     do { /* try open pipe until successful */
         itineraryRequestPipe_fd = open (requestPipeName, O_WRONLY);
         /* 
@@ -77,23 +79,19 @@ int main(int argc, char const *argv[]) {
         strcpy(itinerary[stagesNumber], receivedStage);
         stagesNumber++;
     }
+    
     close(registerToTrainPipe_fd);
     unlink(itineraryPipeName);
 
-    // printf("T%s received its itinerary\n", trainNumber);
+    printf("T%s: itinerary received from registro\n", trainNumber);
     
-    
-
     /* wait for a SIGCONT from register 
         to start together with all the other trains at the same time */
     kill(getpid(), SIGSTOP);
+
     printf("T%s:", trainNumber);
     for (int j = 0; j < stagesNumber; ++j) printf("->%s", itinerary[j]);
     printf("\n");
-    /* 
-    DEBUG: check if all trains start their mission when register dies 
-    printf("Does T%s restart?\n", trainNumber);
-    */
 
     /* TRAIN MISSION */
 
@@ -112,6 +110,7 @@ int main(int argc, char const *argv[]) {
     FILE * trackFilesGuard;
     char trackFilesGuardName[20];
     sprintf(trackFilesGuardName, "trackFilesGuard");
+
     // Preparing variables for execution
     FILE * trackFile;
     char * currentStage;
@@ -121,22 +120,24 @@ int main(int argc, char const *argv[]) {
 
 
     while(j < stagesNumber) {
-        /* Wait for my turn to access track files,
+        /* Train wait for its turn to access track files,
             turnation is managed by process turn_manager,
             turn_manager change turn writing in the file trackFilesGuard,
             turn change every second in this order 1-2-3-4-[5]-1-2-3...*/
         char turn[2];
-        do { /* Repeat until it's my turn */
+        do { /* Repeat until it's train turn */
             trackFilesGuard = fopen(trackFilesGuardName, "r");
             fseek(trackFilesGuard, 0, SEEK_SET);
             int r;
             r = fread(turn, 1, 1, trackFilesGuard);
-            printf("T%s check that it's T%s turn\n", trainNumber, turn);
+            /* DEBUG: checking that the correct train got access according to turn
+                printf("T%s check that it's T%s turn\n", trainNumber, turn); 
+                */
             fclose(trackFilesGuard);
             sleep(1);
         } while(strcmp(turn, trainNumber) != 0);
 
-        printf("T%s got access to files\n", trainNumber);
+        printf("T%s: request access to next stage\n", trainNumber);
 
         // A. Read next track segment or station
         currentStage = itinerary[j];
@@ -159,41 +160,34 @@ int main(int argc, char const *argv[]) {
             do { /* Loop until a connection is made with the server */
                 result = connect (clientFd, serverSockAddrPtr, serverLen);
                 if (result == -1){
-                    printf("Server not ready!!!!!\n");
+                    printf("T%s: server not ready!\n", trainNumber);
                     sleep (1); /* Wait and then try again */
                 }
             } while (result == -1);
+            printf("T%s: server ready\n", trainNumber);
         }
-
-        printf("Server ready, T%s is asking authorization\n", trainNumber);
 
         int authorization = requestAccessTo(nextStage, ETCS, clientFd, trainNumber);
         
-        if (authorization == 2) { /* If nextStage is a station */
+        if (authorization == 2) { /* Train got authorization to access a station */
             printf("T%s: Access to %s authorized\n", trainNumber, nextStage);  
-            // Set to 0 the content of the file of the track occupated previously
-            /* check if previous stage is a station, otherwise it will create the file
-                THIS CHECK CAN BE REMOVED, not possible to have a station before a station */
-            char isStation[2];
-            sprintf(isStation, "%c", currentStage[0]);
-            if (strcmp(isStation, "S") != 0) {
-                trackFile = fopen(currentStage, "w");
-                fseek(trackFile, 0, SEEK_SET);
-                fwrite("0", sizeof(char), 1, trackFile);
-                fclose(trackFile);
-            }
-            // then terminate mission
+            /* Set to 0 the content of the file of the track occupated previously */
+            trackFile = fopen(currentStage, "w");
+            fseek(trackFile, 0, SEEK_SET);
+            fwrite("0", sizeof(char), 1, trackFile);
+            fclose(trackFile);
+            /* Terminate mission */
             break;
 
-        } else if(authorization == 1) { /* If nextStage is a track */
+        } else if(authorization == 1) { /* Train got authorization to access a track segment */
             printf("T%s: Access to %s authorized\n", trainNumber, nextStage);
-            // Set to 1 the content of the file of the track occupated now
+            /* Set to 1 the content of the file representing the track occupated now */
             trackFile = fopen(nextStage, "w");
             fseek(trackFile, 0, SEEK_SET);
             fwrite("1", sizeof(char), 1, trackFile);
             fclose(trackFile);
-            // Set to 0 the content of the file of the track occupated previously
-            /* check if previous stage is a station, otherwise it will create the file */
+            /* Set to 0 the content of the file of the track occupated previously
+                checking if previous stage is a station, otherwise it will create the file Sx*/
             char isStation[2];
             sprintf(isStation, "%c", currentStage[0]);
             if (strcmp(isStation, "S") != 0) {
@@ -204,20 +198,19 @@ int main(int argc, char const *argv[]) {
             }
             j++;
 
-        } else if (authorization == 0) { /* If access not authorized */
+        } else if (authorization == 0) { /* Train is not authorized to proceed */
             printf("T%s: Access to %s not authorized\n", trainNumber, nextStage);
         } else {
             perror("authorization error\n");
             exit(EXIT_FAILURE);
         }
+        /* Closesocket to let other trains connect */
         close (clientFd);
         // C. sleep 2 seconds
         sleep(2);
         // D. repeat from A
     }
-    /* Close the socket */
     
-
     /* Last update to logFile before terminating */
     strftime (dateAndTime, 30, "%d %B %Y %X",timeinfo);
     char logUpdate[100];
@@ -232,6 +225,8 @@ int main(int argc, char const *argv[]) {
     
     /* Send a SIGUSR1 to parent pid before terminating */ 
     kill(getppid(), SIGUSR1);
+
+    printf("T%s: process terminated...\n", trainNumber);
 
     exit(EXIT_SUCCESS);
     return 0;
@@ -254,10 +249,14 @@ int receiveStage(int fd, char *str){
     return 0 if access to next stage is not authorized */    
 int requestAccessTo(char stage[5], const char* ETCS, int clientFd, const char* trainNumber){
    
-    printf("Requesting access for %s\n", stage);
+    printf("T%s: request access to %s\n", trainNumber, stage);
 
     FILE * stageFile;
 
+    /* If mode ETCS1 access is authorized by reading the file content: 
+        if 0 access is authorized
+        if 1 access is not authorized
+        access t stations is always authorized */
     if(strcmp(ETCS, "ETCS1") == 0) {
         /* If next stage is a train station access is automatically guaranteed */
         char isStation[2];
@@ -265,8 +264,8 @@ int requestAccessTo(char stage[5], const char* ETCS, int clientFd, const char* t
         if (strcmp(isStation, "S") == 0) 
             return 2;
         
+        /* Otherwise open file correspondent to the stage it want to acceed */
         stageFile = fopen(stage, "r");
-        
         /* Read character contained in next stage file */
         char fileContent[2];
         int i;
@@ -278,9 +277,14 @@ int requestAccessTo(char stage[5], const char* ETCS, int clientFd, const char* t
         */
         if (strcmp(fileContent, "0") == 0) 
             return 1;
-
-        return 0;
-
+        else if(strcmp(fileContent, "1") == 0)
+            return 0;
+        else
+            perror("Something went wrong in reading file\n");
+    /* If mode ETCS2 access is authorized asking to server_RBC and reading its answer:
+        if server_RBC replies with 0 access is not authorized
+        if server_RBC replies with 1 access to a track is authorized
+        if server_RBC replies with 2 access to a station is authorized */
     } else if (strcmp(ETCS, "ETCS2") == 0) {
         /* Request to server the authorization to access stage */
             
@@ -292,7 +296,9 @@ int requestAccessTo(char stage[5], const char* ETCS, int clientFd, const char* t
         // Read answer from server, that will be 0, 1 or 2
         char str[3];
         readMessage(clientFd, str);
+        /* DEBUG: check correct value is received from server
         printf("%s\n", str);
+        */
 
         // convert answer to int
         int authorization = atoi(str);
@@ -304,6 +310,5 @@ int requestAccessTo(char stage[5], const char* ETCS, int clientFd, const char* t
 
 }
 
-void signalHandler(int signum){
-    //do nothing just restart
-}
+
+
