@@ -1,5 +1,6 @@
 #include "header.h"
 
+int readMessage (int fd, char *str);
 
 int signalCounter = 0;
 
@@ -32,6 +33,35 @@ int main(int argc, char *argv[]) {
     } 
     // padre_treni continues 
 
+    /* Before creating trains, if ETCS2 mode, padre treni will receive serverRBC pid */
+    int clientFd, serverLen, result;
+    struct sockaddr_un serverUNIXAddress;
+    struct sockaddr* serverSockAddrPtr;
+
+    pid_t serverRBC;
+
+    if (strcmp(ETCS, "ETCS2") == 0) {
+        // socket()
+        serverSockAddrPtr = (struct sockaddr*) &serverUNIXAddress;
+        serverLen = sizeof (serverUNIXAddress);
+        //clientFd = socket (AF_UNIX, SOCK_STREAM, 0);
+        serverUNIXAddress.sun_family = AF_UNIX; /* Server domain */
+        strcpy (serverUNIXAddress.sun_path, "authorization"); /*Server name*/
+        clientFd = socket (AF_UNIX, SOCK_STREAM, 0);
+        do { /* Loop until a connection is made with the server */
+            result = connect (clientFd, serverSockAddrPtr, serverLen);
+            if (result == -1){
+                printf("padre_treni: waiting for server to setup socket and receive its pid...\n");
+                sleep (1); /* Wait and then try again */
+            }
+        } while (result == -1);
+
+        char serverPid[10000];
+        readMessage(clientFd, serverPid);
+        printf("serverPid: %s\n", serverPid);
+        serverRBC = atoi(serverPid);
+    }
+
     /* create the right number of trains according to MAPPA: 
         always declare 5 pid but if MAPPA1 doesn't initialise the last one */
     pid_t train[5];
@@ -61,6 +91,10 @@ int main(int argc, char *argv[]) {
     /* ATTEMPT TO REALIZE OPTIONAL TASK 2: supposed to use SIGUSR1*/
     while(signalCounter < numberOfTrains);
 
+    /* Kill server_RBC process that sent its pid at the beginning when all trains terminate
+        their missions */
+    kill(serverRBC, SIGUSR2);
+
     kill(turn_manager, SIGKILL);
 
     exit(EXIT_SUCCESS);
@@ -89,6 +123,15 @@ int createTracks() {
         fclose(file);
     }
     return 0;
+}
+
+int readMessage (int fd, char *str) {
+    /* Read a single ’\0’-terminated line into str from fd */
+    int n;
+    do { /* Read characters until ’\0’ or end-of-input */
+        n = read (fd, str, 1); /* Read one character */
+    } while (n > 0 && *str++ != '\0');
+    return (n > 0); 
 }
 
 /* ATTEMPT TO REALIZE OPTIONAL TASK 2: supposed to use SIGUSR1

@@ -28,6 +28,5 @@ int main(int argc, char const *argv[]) {
         turn = (turn%numberOfTrains)+1;
         sleep(1);
     }
-    return 0;
-    
+    return 0;   
 }

@@ -5,8 +5,6 @@ int receiveStage(int fd, char *str);
 /* Function for reading messages received from trains through pipe */
 int readMessage (int fd, char *str);
 
-
-
 struct stagesStatus{
     int stations[8];
     int segments[16];
@@ -21,15 +19,17 @@ FILE * logFile;
 
 void interruptionHandler(int signum){
     fclose(logFile);
+    printf("\nSIGUSR2 received from padre_treni!\nShutdown Server.\n");
+    exit(EXIT_SUCCESS);
 }
 
 int main(int argc, char *argv[]) {
 
-    signal(SIGINT, interruptionHandler);
+    signal(SIGUSR2, interruptionHandler);
 
     const int numberOfTrains=(strcmp(argv[1], "MAPPA1") == 0) ? 4 : 5;
 
-    printf("Server initialising its data structures\n");
+    printf("\nServer initialising its data structures\n");
 
     /* Data stucture to keep track segments and stations occupation statuses */
     struct stagesStatus status;
@@ -104,8 +104,21 @@ int main(int argc, char *argv[]) {
     unlink ("authorization"); /* Remove file if it already exists */
     bind (serverFd, serverSockAddrPtr, serverLen);/*Create file*/
     
+    /* Server send its pid to padre_treni, so that it can send a SIGUSR2 after all train 
+        will have terminate their mission */
+    listen (serverFd, 5); /* Maximum pending connection length */
+    
+    // accept()
+    clientFd = accept (serverFd, clientSockAddrPtr, &clientLen);
+    char serverPid[10000];
+    sprintf(serverPid, "%d", getpid());
+    printf("Sending server pid to padre_treni before waiting for requests from trains...\n");
+    write(clientFd, serverPid, strlen(serverPid) + 1);
+
+    close(clientFd);
+
     /* Begin to accept client connections... */
-    // ... but first create RBC logfile 
+    // ... but first create RBC log file 
     
     char logFileName[10];
     sprintf(logFileName, "RBC.log");
@@ -244,7 +257,14 @@ int main(int argc, char *argv[]) {
             }   
 
         }
-        printf("Autorizzato? %s\n", authorized);
+
+        if (strcmp(authorized, "SI") == 0) {
+            printf("AUTHORIZED to proceed\n");
+        } else if (strcmp(authorized, "NO") == 0){
+            printf("NOT AUTHORIZED to proceed\n");
+        }
+        
+        printf("AUTORIZZATO? %s\n", authorized);
         /* log file update 
         preparing string to write */
         time (&rawtime);
@@ -253,7 +273,7 @@ int main(int argc, char *argv[]) {
         char logUpdate[300];
         sprintf(logUpdate, "[TRENO RICHIEDENTE AUTORIZZAZIONE: T%s], [SEGMENTO ATTUALE: %s], [SEGMENTO RICHIESTO: %s], [AUTORIZZATO: %s], [DATA: %s]\n", trainNumber, stageToDecrement, stage, authorized, dateAndTime);
         // write update in logfile
-        printf("%s\n", logUpdate);
+        // printf("%s\n", logUpdate);
         fwrite(logUpdate, sizeof(char), strlen(logUpdate), logFile);
         /* Close socket and be ready to accept new connections */  
         close(clientFd);
