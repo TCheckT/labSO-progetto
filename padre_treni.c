@@ -1,7 +1,17 @@
 #include "header.h"
 
-int main(int argc, char *argv[]) {
 
+int signalCounter = 0;
+
+void childTerminationHandler(int signum) {
+    signalCounter++;
+}
+
+int main(int argc, char *argv[]) {
+    /* Install SIGUSR1 signal receiver, when receive the same number 
+        of SIGUSR1 signal */
+    signal(SIGUSR1, childTerminationHandler);
+    
     char* MAPPA = argv[1];
     char* ETCS = argv[2];
 
@@ -43,13 +53,13 @@ int main(int argc, char *argv[]) {
         }
     }
     // wait for all children to finish
+   /* wait(NULL);
     wait(NULL);
     wait(NULL);
     wait(NULL);
-    wait(NULL);
-    if(numberOfTrains == 5) wait(NULL);
+    if(numberOfTrains == 5) wait(NULL); */
     /* ATTEMPT TO REALIZE OPTIONAL TASK 2: supposed to use SIGUSR1*/
-    //while(signalCounter < n_treni) {}
+    while(signalCounter < numberOfTrains);
 
     kill(turn_manager, SIGKILL);
 

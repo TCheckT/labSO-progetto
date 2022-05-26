@@ -13,16 +13,7 @@ int readMessage (int fd, char *str) {
     return (n > 0); /* Return false if end-of-input */
 }
 
-
-int readString (int fd) {
-    char str[200];
-    while (readMessage (fd, str)) /* Read lines until end-of-input */
-    printf ("%s\n", str); /* Echo line from socket */
-    return 0;
-}
-
  
-
 int main(int argc, char const *argv[]) {
     
     /* Install signal to synchronize trains in starting their mission */
@@ -89,15 +80,16 @@ int main(int argc, char const *argv[]) {
     close(registerToTrainPipe_fd);
     unlink(itineraryPipeName);
 
-    printf("T%s received its itinerary\n", trainNumber);
-    printf("T%s:", trainNumber);
-    for (int j = 0; j < stagesNumber; ++j) printf("->%s", itinerary[j]);
-    printf("\n");
+    // printf("T%s received its itinerary\n", trainNumber);
+    
+    
 
     /* wait for a SIGCONT from register 
         to start together with all the other trains at the same time */
     kill(getpid(), SIGSTOP);
-
+    printf("T%s:", trainNumber);
+    for (int j = 0; j < stagesNumber; ++j) printf("->%s", itinerary[j]);
+    printf("\n");
     /* 
     DEBUG: check if all trains start their mission when register dies 
     printf("Does T%s restart?\n", trainNumber);
@@ -236,7 +228,10 @@ int main(int argc, char const *argv[]) {
     fclose(logFile);
     
 
-    printf("Treno T%s terminate its mission!!! CONGRATULAZIONI! clap, clap, clap...\n", trainNumber);
+    printf("### Treno T%s reach station %s. Mission complete! ###\n", trainNumber, nextStage);
+    
+    /* Send a SIGUSR1 to parent pid before terminating */ 
+    kill(getppid(), SIGUSR1);
 
     exit(EXIT_SUCCESS);
     return 0;

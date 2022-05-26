@@ -1,7 +1,5 @@
 #include "header.h"
 
-int sendStation(char* itinerary, char * pipe, int itineraryLen);
-
 int main(int argc, char *argv[]) {
 
     char* MAPPA = argv[1];
@@ -25,8 +23,8 @@ int main(int argc, char *argv[]) {
     
     int itineraryRequestPipe_fd;
     
-    printf("ETCS:%s\n",ETCS);
-    //TODO: sending all itineraries to serverRBC if ETCS2
+    // printf("ETCS:%s\n",ETCS);
+    /* Send all itineraries to serverRBC if ETCS2 mode */
     if(strcmp(ETCS, "ETCS2") == 0)
     {
         if (strcmp(MAPPA,"MAPPA1")==0)
@@ -94,7 +92,7 @@ int main(int argc, char *argv[]) {
     /* Wait for request from a train and assign itinerary to it when received,
         repeat it until every train send a request and receive its itinerary */
     while(satisfiedRequests < numberOfTrains) {
-        printf("Register creating pipe to send itinerary to trains\n");
+        // printf("Register creating pipe to send itinerary to trains\n");
 
         // Create and open pipe for receiving itinerary from a train
         sprintf(requestPipeName, "T%ditineraryRequestPipe", satisfiedRequests + 1);
@@ -105,7 +103,7 @@ int main(int argc, char *argv[]) {
         itineraryRequestPipe_fd = open(requestPipeName, O_RDONLY);
 
         waitForRequest(itineraryRequestPipe_fd, receivedRequest);
-        printf("Request for itinerary from %s received\n", receivedRequest);
+        // printf("Request for itinerary from %s received\n", receivedRequest);
 
         // Preparing to send the correct itinerary according to the request received 
         int i;

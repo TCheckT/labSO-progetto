@@ -1,21 +1,17 @@
 #include "header.h"
+
 /* Function for reading a stage received from register through pipe */
 int receiveStage(int fd, char *str);
 /* Function for reading messages received from trains through pipe */
 int readMessage (int fd, char *str);
 
-struct tracksAndStationsOccupationStatuses{
+struct stagesStatus{
     int stations[8];
     int segments[16];
 };
 
-
-/////////////////////// SANTO SISTEMA
 struct trainsInfo{
     char name[3];
-    /*int first_station;
-    int destination;
-    int itinerary[5];*/
     char itinerary[10][5];
 };
 
@@ -28,7 +24,7 @@ int main(int argc, char *argv[]) {
     printf("Server initialising its data structures\n");
 
     /* Data stucture to keep track segments and stations occupation statuses */
-    struct tracksAndStationsOccupationStatuses status;
+    struct stagesStatus status;
     for (int i = 0; i < 8; ++i)     status.stations[i] = 0;
     for (int i = 0; i < 16; ++i)    status.segments[i] = 0;
 

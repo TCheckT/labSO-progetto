@@ -33,10 +33,11 @@ Criticità:
 TODO: 
 1-Sistemare cose santo
 2-mettere in header funzione ricezione da pipe o socket
-3-interruzioni SIGUSR1 e SIGUSR2
+3-interruzioni SIGUSR2
 4-controllo profondo
 5-sistemare header, magari dividerlo in più di uno
 6-preparare makefile install
+7- LOGFILE SERVER!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 //DONE:
 - scansione argomenti input e controllo formato [ECTS1/2][PBR][MAPPA1/2]
