@@ -93,7 +93,9 @@ int main(int argc, char *argv[]) {
 
     /* Kill server_RBC process that sent its pid at the beginning when all trains terminate
         their missions */
-    kill(serverRBC, SIGUSR2);
+    if (strcmp(ETCS, "ETCS2") == 0) {
+        kill(serverRBC, SIGUSR2);
+    }
 
     kill(turn_manager, SIGKILL);
 

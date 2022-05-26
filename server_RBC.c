@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
 
         // for (int j = 0; j < SIZEOF(train[i].itinerary); ++j)printf("%s\n", train[i].itinerary[j]);
 
-        printf("T%d route received\n", i+1);
+        printf("T%d itinerary received\n", i+1);
 
         unlink("serverRegisterPipe");
     }
