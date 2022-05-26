@@ -5,6 +5,8 @@ int receiveStage(int fd, char *str);
 /* Function for reading messages received from trains through pipe */
 int readMessage (int fd, char *str);
 
+
+
 struct stagesStatus{
     int stations[8];
     int segments[16];
@@ -15,11 +17,17 @@ struct trainsInfo{
     char itinerary[10][5];
 };
 
+FILE * logFile;
+
+void interruptionHandler(int signum){
+    fclose(logFile);
+}
+
 int main(int argc, char *argv[]) {
 
-    const int numberOfTrains=(strcmp(argv[1], "MAPPA1") == 0) ? 4 : 5;
+    signal(SIGINT, interruptionHandler);
 
-    printf("Server starting with map: %s\n", argv[1]);
+    const int numberOfTrains=(strcmp(argv[1], "MAPPA1") == 0) ? 4 : 5;
 
     printf("Server initialising its data structures\n");
 
@@ -36,17 +44,18 @@ int main(int argc, char *argv[]) {
     struct trainsInfo train[5];
 
     /* Server has to receive all itineraries through pipe from register */
+    printf("Server receiving %s itineraries from registro\n", argv[1]);
     for (int i = 0; i < numberOfTrains; ++i) {
         char receivedStage[5];
 
         sprintf(train[i].name, "T%d", i+1);
 
-        printf("Creating pipe between server and register\n");
+        // printf("Creating pipe between server and register\n");
         unlink("serverRegisterPipe");
         mknod("serverRegisterPipe", S_IFIFO, 0);
         chmod("serverRegisterPipe", 0660);
 
-        printf("Opening pipe in read only mode\n");
+        // printf("Opening pipe in read only mode\n");
         
         int itineraryRequestPipe_fd = open("serverRegisterPipe", O_RDONLY);
 
@@ -54,26 +63,26 @@ int main(int argc, char *argv[]) {
 
         int stagesNumber = 0;
         while(receiveStage(itineraryRequestPipe_fd,receivedStage)) {
-            printf("Server received stage %s from register\n", receivedStage);
+            // printf("Server received stage %s from register\n", receivedStage);
             
             strcpy(train[i].itinerary[stagesNumber], receivedStage);
             
-            printf("Stage %s saved into T%d itinerary\n\n", receivedStage, i+1);
+            // printf("Stage %s saved into T%d itinerary\n\n", receivedStage, i+1);
             stagesNumber++;
         }
 
         // for (int j = 0; j < SIZEOF(train[i].itinerary); ++j)printf("%s\n", train[i].itinerary[j]);
 
-        printf("T%d route recieved\n", i+1);
+        printf("T%d route received\n", i+1);
 
         unlink("serverRegisterPipe");
     }
 
-    printf("Itineraries for every train has been received... preparing to communicate with trains\n");
+    printf("\nItineraries for every train has been received... preparing to communicate with trains\n");
     sleep(2);
 
     /* Now server can start to wait for trains requests, it will setup a socket for this kind of communication */
-    printf("Setting up socket...\n");
+    printf("\nSetting up socket...\n");
     
     int serverFd, clientFd, serverLen, clientLen;
     struct sockaddr_un serverUNIXAddress; /*Server address */
@@ -95,9 +104,20 @@ int main(int argc, char *argv[]) {
     unlink ("authorization"); /* Remove file if it already exists */
     bind (serverFd, serverSockAddrPtr, serverLen);/*Create file*/
     
-    /* Begin to accept client connections */
+    /* Begin to accept client connections... */
+    // ... but first create RBC logfile 
+    
+    char logFileName[10];
+    sprintf(logFileName, "RBC.log");
+    logFile = fopen(logFileName, "w");
+    // Utilities for writing date and time in logfile
+    time_t rawtime;
+    struct tm * timeinfo;
+    char dateAndTime [30];
+
     while (1) {
-        printf("Server RBC is waiting for requests from clients\n");
+        
+        printf("\nServer waiting for requests from clients...\n");
         
         // listen()
         listen (serverFd, 5); /* Maximum pending connection length */
@@ -115,12 +135,15 @@ int main(int argc, char *argv[]) {
         char stage[5];
         readMessage(clientFd, stage);
 
-
         printf("T%s request access to %s\n", trainNumber, stage);
+
+        char authorized[3];
+        char stageToDecrement[5];
 
         /* If first char in stage is an S then train is requiring access to a station... */
         char isStation[2];
         sprintf(isStation, "%c", stage[0]);
+
         if (strcmp(isStation, "S") == 0) {
             /* ... so server has to return 2 and has to modify its data structures accordingly */
             char stationNumber[5];
@@ -135,10 +158,10 @@ int main(int argc, char *argv[]) {
             status.stations[stationToIncrement] += 1;
 
             // Decrement value of the track or station occupated previously
-            char stageToDecrement[5];
+            
                 // retrieve which one through server data structures
             strncpy(stageToDecrement, train[train_n].itinerary[progresses[train_n]], 5); 
-            printf("stage to decrement: %s\n", stageToDecrement);
+            // printf("stage to decrement: %s\n", stageToDecrement);
             // increment progress of the train itinerary
             progresses[train_n] += 1;
 
@@ -148,25 +171,27 @@ int main(int argc, char *argv[]) {
             if (strcmp(isStation, "S") == 0) {
                 char stationNumber[5];
                 strncpy(stationNumber, stageToDecrement+1, strlen(stageToDecrement));
-                printf("stationNumber: %s\n", stationNumber);
+                // printf("stationNumber: %s\n", stationNumber);
                 int station_n = atoi(stationNumber) - 1;
                 status.stations[station_n] -= 1;
             } else {
                 char segmentNumber[5];
                 strncpy(segmentNumber, stageToDecrement+2, strlen(stageToDecrement));
-                printf("segmentNumber: %s\n", segmentNumber);
+                // printf("segmentNumber: %s\n", segmentNumber);
                 int segment_n = atoi(segmentNumber) - 1;
                 status.segments[segment_n] -= 1;
             }
+
             /* say "2" to train, that means that it has entered in a station */
             write(clientFd, "2", strlen("2") + 1);
+            sprintf(authorized, "SI");
         
-        /* If first char in stage is not "S" then traini is requiring access to a track segment... */
+        /* If first char in stage is not "S" then train is requiring access to a track segment... */
         } else {
             /* ... so server has to return 1 or 0 if access is authorized or not authorized */
             char segmentNumber[5];
             strncpy(segmentNumber, stage+2, strlen(stage));
-            printf("segmentNumber: %s\n", segmentNumber);
+            // printf("segmentNumber: %s\n", segmentNumber);
 
              /* Segment correspondent position in status.segments[] */
             int segmentToCheck = atoi(segmentNumber) - 1;
@@ -181,10 +206,10 @@ int main(int argc, char *argv[]) {
                 status.segments[segmentToCheck] = 1;
 
                 // Decrement value of the track or station occupated previously
-                char stageToDecrement[5];
+                
                     // retrieve which one through server data structures
                 strncpy(stageToDecrement, train[train_n].itinerary[progresses[train_n]], 5); 
-                printf("stage to decrement: %s\n", stageToDecrement);
+                // printf("stage to decrement: %s\n", stageToDecrement);
                 // increment progress of the train itinerary
                 progresses[train_n] += 1;
 
@@ -194,28 +219,46 @@ int main(int argc, char *argv[]) {
                 if (strcmp(isStation, "S") == 0) {
                     char stationNumber[5];
                     strncpy(stationNumber, stageToDecrement+1, strlen(stageToDecrement));
-                    printf("stationNumber: %s\n", stationNumber);
+                    // printf("stationNumber: %s\n", stationNumber);
                     int station_n = atoi(stationNumber) - 1;
                     status.stations[station_n] -= 1;
                 } else {
                     char segmentNumber[5];
                     strncpy(segmentNumber, stageToDecrement+2, strlen(stageToDecrement));
-                    printf("segmentNumber: %s\n", segmentNumber);
+                    // printf("segmentNumber: %s\n", segmentNumber);
                     int segment_n = atoi(segmentNumber) - 1;
                     status.segments[segment_n] -= 1;
                 }
                 /* say "1" to train, that means that it is authorized to enter in the requested segment */
                 write(clientFd, "1", strlen("1") + 1);
+                // strncpy(stageToDecrement, train[train_n].itinerary[progresses[train_n]], 5); 
+                // printf("stage to decrement: %s\n", stageToDecrement);
+                sprintf(authorized, "SI");
 
              /* If segment status = 1, segment is occupied and server doesn't give authorization to move.
-                No updates to data structures needed */
+                No updates to data structures needed, just save data in variables for log update */
             } else if(status.segments[segmentToCheck] == 1) {
                 write(clientFd, "0", strlen("0") + 1);
+                strncpy(stageToDecrement, train[train_n].itinerary[progresses[train_n]], 5); 
+                sprintf(authorized, "NO");
             }   
+
         }
-        /* Close socket when receive termination signal */  
+        printf("Autorizzato? %s\n", authorized);
+        /* log file update 
+        preparing string to write */
+        time (&rawtime);
+        timeinfo = localtime (&rawtime);
+        strftime (dateAndTime, 30, "%d %B %Y %X",timeinfo);
+        char logUpdate[300];
+        sprintf(logUpdate, "[TRENO RICHIEDENTE AUTORIZZAZIONE: T%s], [SEGMENTO ATTUALE: %s], [SEGMENTO RICHIESTO: %s], [AUTORIZZATO: %s], [DATA: %s]\n", trainNumber, stageToDecrement, stage, authorized, dateAndTime);
+        // write update in logfile
+        printf("%s\n", logUpdate);
+        fwrite(logUpdate, sizeof(char), strlen(logUpdate), logFile);
+        /* Close socket and be ready to accept new connections */  
         close(clientFd);
     }
+
     return 0;
 }
 
