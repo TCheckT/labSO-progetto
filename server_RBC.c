@@ -264,7 +264,6 @@ int main(int argc, char *argv[]) {
             printf("NOT AUTHORIZED to proceed\n");
         }
         
-        printf("AUTORIZZATO? %s\n", authorized);
         /* log file update 
         preparing string to write */
         time (&rawtime);
