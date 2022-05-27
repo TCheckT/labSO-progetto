@@ -2,7 +2,7 @@
 
 FILE * logFile;
 
-void interruptionHandler(int signum) {
+void SIGUSR2FromPadre_treniHandler(int signum) {
     fclose(logFile);
     printf("\nSIGUSR2 received from padre_treni!\nShutdown Server.\n");
     exit(EXIT_SUCCESS);
@@ -20,7 +20,7 @@ struct trainsInfo{
 
 int main(int argc, char *argv[]) {
 
-    signal(SIGUSR2, interruptionHandler);
+    signal(SIGUSR2, SIGUSR2FromPadre_treniHandler);
 
     const int numberOfTrains=(strcmp(argv[1], "MAPPA1") == 0) ? 4 : 5;
 
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
     struct trainsInfo train[5];
 
     /* Server has to receive all itineraries through pipe from register */
-    printf("Server receiving %s itineraries from registro\n", argv[1]);
+    printf("Server waiting to receive %s itineraries from registro\n", argv[1]);
     for (int i = 0; i < numberOfTrains; ++i) {
         char receivedStage[5];
 

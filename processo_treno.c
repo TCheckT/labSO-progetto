@@ -1,7 +1,7 @@
 #include "header.h"
 
-void signalHandler(int signum) {
-    //do nothing, just awake the train
+void startingMissionSignalHandler(int signum) {
+    //do nothing, just awake the train from SIGSTOP
 }
 
 int requestAccessTo(char step[5], const char* MODE, int clientFd, const char* trainNumber);
@@ -9,7 +9,7 @@ int requestAccessTo(char step[5], const char* MODE, int clientFd, const char* tr
 int main(int argc, char const *argv[]) {
     
     /* Install signal SIGCONT to synchronize trains in starting their mission */
-    signal(SIGCONT, signalHandler);
+    signal(SIGCONT, startingMissionSignalHandler);
 
     const char * ETCS = argv[2];
     const char* trainNumber = argv[1];

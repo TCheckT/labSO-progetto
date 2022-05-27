@@ -189,7 +189,7 @@ int sendItinerary(char* itinerary[], char pipeName[], int itineraryLen) {
     return 0;
 }
 
-
+/* ASSIGN ITINERARY */
 /* Function to assign which itinerary will be sent from register to train */
 int assignItinerary(char * request){
     if(strcmp(request, "T1") == 0)          return 1;

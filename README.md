@@ -28,33 +28,27 @@ Implementata socket lato server e inizio lavoro a comunicazione registro-server
 
 // 26.05.2022
 
+// 27.05.2022
+Quasi finito
 
 
 Cose da far notare nella relazione:
 - codice in inglese con alcune keyword del testo del progetto mantenute in italiano
 - in ETCS2 si possono lanciare server e processo normale in qualsiasi ordine dato che padre treni aspetta il pid del server e il server aspetta registro
 - far notare che con registro si comunica solo tramite pipe: la pipe per ricevere richieste dai treni viene ricreata ad ogni iterazione, le pipe usate da registro per mandare gli itinerari ad ogni treno sono invece create da movementAuthority e mai distrutte
+- descrizione struct e funzioni per ottenere il tempo da scrivere nei logfile, ricercare documentazione online e condividere riferimenti
+- se si lanciano server e processo con mappe discordanti va in loop... Far notare il perchè e dove.
+
 
 Criticità: 
-- riga 163 in registro.c, funzione waitForRequest. Se processo treno non avesse già  fatto la richiesta? ritornerebbe falso?
-- si possono mettere in header la funzione receiveStage di processo_treno e la funzione waitForRequest di registro per ridurre duplicazione di codice e chiamare la funzione receiveFromPipe()
+- in registro.c, quando si chiama receiveFrom. Se processo treno non avesse già  fatto la richiesta? ritornerebbe falso?
+- se MAPPA discordante in server e processo, programma va in loop da entrambe le parti, capire almeno il perchè e eventualmente dare un feedback a schermo di interrompere programmi e ripartire con mappe coordinate, se non è troppo difficile. Sennò si specifica nel readme.
 
 TODO: 
--mettere in header funzione ricezione da pipe o socket, evitare duplicazione di codice il più possibile
 -controllo profondo
--sistemare header, magari dividerlo in più di uno
 -preparare makefile install
 -problema deadlock mi sa che si è risolto da solo per come abbiamo implementato il tutto, se ne riparla...
-
-//DONE:
-- scansione argomenti input e controllo formato [ECTS1/2][PBR][MAPPA1/2]
-- creazione processo PADRE_TRENI come figlio processo main
-- PADRE_TRENI crea i file rappresentanti i segmenti di binario, imposta correttamente i permessi a 666
-- PADRE_TRENI fa anche le fork per generare i treni figli
-- aggiunto file registro.c che crea distribuisce itinerari ai treni tramite quando ne fanno richiesta, sempre tramite pipe
-- processi treni lanciati tramite exec dell'eseguibile processo_treno
-
-//TODO:
-
-1- risistemare header, magari farne più di uno differenziando gli include in base ai processi
+-opzionale 2: treno fermo quando RBC ha info discordante con la sua
+-ottimizzazione generica, vedi un po'te
+-README fatto bene
 

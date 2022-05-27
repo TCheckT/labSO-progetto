@@ -1,19 +1,18 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <unistd.h>
-#include <sys/wait.h>
+#include <string.h>
+
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <time.h>
-#include <sys/types.h>       
+#include <sys/wait.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 
+#include <fcntl.h>
+#include <signal.h>
+#include <time.h>
+      
 // Used to get number of element of an array 
 #define SIZEOF(a) ( sizeof a / sizeof a[0] )
 
