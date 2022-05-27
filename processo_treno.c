@@ -6,16 +6,6 @@ void signalHandler(int signum) {
 
 int requestAccessTo(char step[5], const char* MODE, int clientFd, const char* trainNumber);
 
-int readMessage (int fd, char *str) {
-    /* Read a single ’\0’-terminated line into str from fd */
-    int n;
-    do { /* Read characters until ’\0’ or end-of-input */
-    n = read (fd, str, 1); /* Read one character */
-    } while (n > 0 && *str++ != '\0');
-    return (n > 0); /* Return false if end-of-input */
-}
-
- 
 int main(int argc, char const *argv[]) {
     
     /* Install signal SIGCONT to synchronize trains in starting their mission */
@@ -73,7 +63,7 @@ int main(int argc, char const *argv[]) {
     registerToTrainPipe_fd = open(itineraryPipeName, O_RDONLY);
 
     /* Receive stages until pipe is closed on writer side */
-    while(receiveStage(registerToTrainPipe_fd, receivedStage)) {
+    while(receiveFrom(registerToTrainPipe_fd, receivedStage)) {
         // Save stage in own data structure
         // printf("Saving %s into T%s\n", receivedStage, trainNumber);
         strcpy(itinerary[stagesNumber], receivedStage);
@@ -117,8 +107,6 @@ int main(int argc, char const *argv[]) {
     char * nextStage;
     int j = 0;
     
-
-
     while(j < stagesNumber) {
         /* Train wait for its turn to access track files,
             turnation is managed by process turn_manager,
@@ -136,8 +124,6 @@ int main(int argc, char const *argv[]) {
             fclose(trackFilesGuard);
             sleep(1);
         } while(strcmp(turn, trainNumber) != 0);
-
-        printf("T%s: request access to next stage\n", trainNumber);
 
         // A. Read next track segment or station
         currentStage = itinerary[j];
@@ -221,7 +207,7 @@ int main(int argc, char const *argv[]) {
     fclose(logFile);
     
 
-    printf("### Treno T%s reach station %s. Mission complete! ###\n", trainNumber, nextStage);
+    printf("T%s: ### Train T%s reach station %s. Mission complete! ###\n", trainNumber, trainNumber, nextStage);
     
     /* Send a SIGUSR1 to parent pid before terminating */ 
     kill(getppid(), SIGUSR1);
@@ -232,16 +218,8 @@ int main(int argc, char const *argv[]) {
     return 0;
 }
 
-/* This function read a /0 terminating sequence of char from a pipe fd 
-    and place them as a string at str */
-int receiveStage(int fd, char *str){
-    int n;
-    do {
-        n = read(fd, str, 1);
-    } while(n > 0 && *str++ != '\0');
-    return (n > 0);
-}
 
+/* REQUEST ACCESS TO */
 /* This function select the method to request authorization to proceed on a 
     track according to ETCS:
     return 2 if access to a station is authorized
@@ -295,12 +273,12 @@ int requestAccessTo(char stage[5], const char* ETCS, int clientFd, const char* t
 
         // Read answer from server, that will be 0, 1 or 2
         char str[3];
-        readMessage(clientFd, str);
+        receiveFrom(clientFd, str);
         /* DEBUG: check correct value is received from server
         printf("%s\n", str);
         */
 
-        // convert answer to int
+        // convert answer to int and return it
         int authorization = atoi(str);
         return authorization;
     } else {

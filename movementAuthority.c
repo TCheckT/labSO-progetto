@@ -1,5 +1,8 @@
 #include "header.h"
 
+/* Function to check if arguments passed to movementAuthority are in the correct format */
+int inputCheck(int argc, char *argv[]);
+
 int main(int argc, char *argv[]) {
     /* inputCheck check that input arguments are in the correct format:
         return 0 if input is correct and RBC option not present

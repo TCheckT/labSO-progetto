@@ -1,5 +1,10 @@
 #include "header.h"
 
+/*  */
+int sendItinerary(char* itinerario[], char numeroTreno[], int lunghezzaItinerario);
+/*  */
+int assignItinerary(char[]);
+
 int main(int argc, char *argv[]) {
     /* registro contains all itineraries for both MAPPAs and send them
         to processes that make a request through pipes */
@@ -104,7 +109,7 @@ int main(int argc, char *argv[]) {
 
         itineraryRequestPipe_fd = open(requestPipeName, O_RDONLY);
 
-        waitForRequest(itineraryRequestPipe_fd, receivedRequest);
+        receiveFrom(itineraryRequestPipe_fd, receivedRequest);
         printf("registro: request from %s received\n", receivedRequest);
 
         // Preparing to send the correct itinerary according to the request received 
@@ -158,16 +163,7 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-/* This function read a /0 terminating sequence of char from a pipe fd 
-    and place them as a string at str */
-int waitForRequest(int fd, char *str) { 
-    int n;
-    do { /* Read characters until ’\0’ or end-of-input */
-        n = read (fd, str, 1); /* Read one character */
-    } while (n > 0 && *str++ != 0);
-    return (n > 0); /* Return false if end-of-input */
-}
-
+/* SEND ITINERARY */
 /* This function send, one by one, the stages of an itineraries 
     to the respective train, using the appropriate pipe */
 int sendItinerary(char* itinerary[], char pipeName[], int itineraryLen) {
@@ -192,6 +188,7 @@ int sendItinerary(char* itinerary[], char pipeName[], int itineraryLen) {
     unlink(pipeName);
     return 0;
 }
+
 
 /* Function to assign which itinerary will be sent from register to train */
 int assignItinerary(char * request){

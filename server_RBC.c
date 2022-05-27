@@ -1,9 +1,12 @@
 #include "header.h"
 
-/* Function for reading a stage received from register through pipe */
-int receiveStage(int fd, char *str);
-/* Function for reading messages received from trains through pipe */
-int readMessage (int fd, char *str);
+FILE * logFile;
+
+void interruptionHandler(int signum) {
+    fclose(logFile);
+    printf("\nSIGUSR2 received from padre_treni!\nShutdown Server.\n");
+    exit(EXIT_SUCCESS);
+}
 
 struct stagesStatus{
     int stations[8];
@@ -14,14 +17,6 @@ struct trainsInfo{
     char name[3];
     char itinerary[10][5];
 };
-
-FILE * logFile;
-
-void interruptionHandler(int signum){
-    fclose(logFile);
-    printf("\nSIGUSR2 received from padre_treni!\nShutdown Server.\n");
-    exit(EXIT_SUCCESS);
-}
 
 int main(int argc, char *argv[]) {
 
@@ -62,7 +57,7 @@ int main(int argc, char *argv[]) {
         printf("Accepting T%d itinerary\n", i+1);
 
         int stagesNumber = 0;
-        while(receiveStage(itineraryRequestPipe_fd,receivedStage)) {
+        while(receiveFrom(itineraryRequestPipe_fd,receivedStage)) {
             // printf("Server received stage %s from register\n", receivedStage);
             
             strcpy(train[i].itinerary[stagesNumber], receivedStage);
@@ -140,13 +135,13 @@ int main(int argc, char *argv[]) {
         
         /* First receive the number of the train that is making the request... */
         char trainNumber[2];
-        readMessage(clientFd, trainNumber);
+        receiveFrom(clientFd, trainNumber);
         /* ... and convert it to the int value that correspond to its position in train structure */
         int train_n = atoi(trainNumber) - 1;
 
         /* Then receive the segment or station that the train is requesting access to */
         char stage[5];
-        readMessage(clientFd, stage);
+        receiveFrom(clientFd, stage);
 
         printf("T%s request access to %s\n", trainNumber, stage);
 
@@ -254,15 +249,11 @@ int main(int argc, char *argv[]) {
                 write(clientFd, "0", strlen("0") + 1);
                 strncpy(stageToDecrement, train[train_n].itinerary[progresses[train_n]], 5); 
                 sprintf(authorized, "NO");
-            }   
-
+            }
         }
 
-        if (strcmp(authorized, "SI") == 0) {
-            printf("AUTHORIZED to proceed\n");
-        } else if (strcmp(authorized, "NO") == 0){
-            printf("NOT AUTHORIZED to proceed\n");
-        }
+        if (strcmp(authorized, "SI") == 0) printf("AUTHORIZED to proceed\n");
+        else if (strcmp(authorized, "NO") == 0) printf("NOT AUTHORIZED to proceed\n");
         
         /* log file update 
         preparing string to write */
@@ -279,24 +270,4 @@ int main(int argc, char *argv[]) {
     }
 
     return 0;
-}
-
-/////////// SANTO SISTEMA, sono praticamente lo stesso metodo,
-// cambia comportamento ricevendo in input un fd socket o pipe
-// sia qui che in altri file viene usato, lo possiamo spostare in header per ridurre dup codice
-int receiveStage(int fd, char *str){
-    int n;
-    do {
-        n = read(fd, str, 1);
-    } while(((n > 0) && (*str++ != '\0')));
-    return (n > 0);
-}
-
-int readMessage (int fd, char *str) {
-    /* Read a single ’\0’-terminated line into str from fd */
-    int n;
-    do { /* Read characters until ’\0’ or end-of-input */
-        n = read (fd, str, 1); /* Read one character */
-    } while (n > 0 && *str++ != '\0');
-    return (n > 0); 
 }

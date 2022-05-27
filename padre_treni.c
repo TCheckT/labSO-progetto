@@ -1,12 +1,13 @@
 #include "header.h"
 
-int readMessage (int fd, char *str);
-
 int signalCounter = 0;
 
 void childTerminationHandler(int signum) {
     signalCounter++;
 }
+
+/* Function to create files MAx representing tracks segments */
+int createTracks();
 
 int main(int argc, char *argv[]) {
     /* Install SIGUSR1 signal receiver, when receive the same number 
@@ -21,7 +22,7 @@ int main(int argc, char *argv[]) {
         perror("Error: binary segments not created correctly\n");
     printf("padre_treni: MAx files created\n");
 
-    //launch turn_manager
+    // launch turn_manager
     pid_t turn_manager;
 
     turn_manager = fork();
@@ -60,7 +61,7 @@ int main(int argc, char *argv[]) {
         } while (result == -1);
 
         char serverPid[1000];
-        readMessage(clientFd, serverPid);
+        receiveFrom(clientFd, serverPid);
         printf("padre_treni: server_RBC pid received.\n");
         serverRBC = atoi(serverPid);
     }
@@ -112,8 +113,7 @@ int createTracks() {
     FILE * file;
     char name[5];
 
-    for (int i = 1; i <= 16; ++i)
-    {   
+    for (int i = 1; i <= 16; ++i) {   
         // Generating the name of the file MAx with metavariables
         sprintf(name, "MA%d",i);
 
@@ -130,13 +130,4 @@ int createTracks() {
         fclose(file);
     }
     return 0;
-}
-
-int readMessage (int fd, char *str) {
-    /* Read a single ’\0’-terminated line into str from fd */
-    int n;
-    do { /* Read characters until ’\0’ or end-of-input */
-        n = read (fd, str, 1); /* Read one character */
-    } while (n > 0 && *str++ != '\0');
-    return (n > 0); 
 }
