@@ -93,6 +93,12 @@ int main(int argc, char *argv[]) {
         when 4 or 5 signals are received, depending on which MAPPA was launched, padre_treni can continue. */
     while(signalCounter < numberOfTrains);
 
+    /* When 4 (or 5) SIGUSR1 have been received, padre_treni terminates children */
+    for (short int i = 0; i < numberOfTrains; i++) {
+        printf("padre_treni: terminating T%d\n", i+1);
+        kill(train[i], SIGKILL);
+    }
+    
     /* Tell to server_RBC process to terminate with a SIGUSR2 
         server_RBC sent its pid at the beginning */
     if (strcmp(ETCS, "ETCS2") == 0) {

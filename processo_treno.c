@@ -212,9 +212,13 @@ int main(int argc, char const *argv[]) {
     /* Send a SIGUSR1 to parent pid before terminating */ 
     kill(getppid(), SIGUSR1);
 
-    printf("T%s: process terminated...\n", trainNumber);
+    // printf("T%s: process terminated...\n", trainNumber);
 
-    exit(EXIT_SUCCESS);
+    while(1){
+        printf("T%s: waiting for other trains to terminate their missions...\n", trainNumber);
+        sleep(5);
+    }
+
     return 0;
 }
 
