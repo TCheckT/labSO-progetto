@@ -257,9 +257,9 @@ int requestAccessTo(char stage[5], const char* ETCS, int clientFd, const char* t
         /* DEBUG: to check requested stage status
         printf("%s statust: %s\n", stage, fileContent);
         */
-        if (strcmp(fileContent, "0") == 0) 
+        if (fileContent[0]=='0') 
             return 1;
-        else if(strcmp(fileContent, "1") == 0)
+        else if (fileContent[0]=='1') 
             return 0;
         else
             perror("Something went wrong in reading file\n");
