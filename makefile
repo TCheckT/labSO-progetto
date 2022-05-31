@@ -1,38 +1,21 @@
-movementAuthority: movementAuthority.o padre_treni registro server_RBC
-	cc movementAuthority.o -o movementAuthority
+movementAuthority: movementAuthority.c padre_treni registro server_RBC turn_manager header.h
+	cc movementAuthority.c -o movementAuthority
 
-movementAuthority.o: movementAuthority.c header.h
-	cc -c movementAuthority.c
+padre_treni: padre_treni.c processo_treno header.h 
+	cc padre_treni.c -o padre_treni
 
-padre_treni: padre_treni.o processo_treno turn_manager
-	cc padre_treni.o -o padre_treni
+processo_treno: processo_treno.c header.h
+	cc processo_treno.c -o processo_treno
 
-padre_treni.o: padre_treni.c header.h
-	cc -c padre_treni.c
+registro: registro.c header.h
+	cc registro.c -o registro
 
-registro: registro.o
-	cc registro.o -o registro
+server_RBC: server_RBC.c header.h
+	cc server_RBC.c -o server_RBC
 
-registro.o: registro.c header.h
-	cc -c registro.c
+turn_manager: turn_manager.c header.h
+	cc turn_manager.c -o turn_manager
 
-processo_treno: processo_treno.o
-	cc processo_treno.o -o processo_treno
-
-processo_treno.o: processo_treno.c header.h
-	cc -c processo_treno.c
-
-server_RBC: server_RBC.o
-	cc server_RBC.o -o server_RBC
-	
-server_RBC.o: server_RBC.c header.h
-	cc -c server_RBC.c
-	
-turn_manager: turn_manager.o
-	cc turn_manager.o -o turn_manager
-	
-turn_manager.o: turn_manager.c header.h
-	cc -c turn_manager.c
 
 install:
 	mkdir progetto
@@ -45,9 +28,10 @@ install:
 	cc progetto/src/padre_treni.c -o progetto/bin/padre_treni
 	cc progetto/src/processo_treno.c -o progetto/bin/processo_treno
 	cc progetto/src/server_RBC.c -o progetto/bin/server_RBC
+	cc progetto/src/turn_manager.c -o progetto/bin/turn_manager
 
 clean:
-	rm -f *.o 
+	rm -f *.o
 	rm -f *Pipe*
 	rm -f *.log
 	rm -f T*
