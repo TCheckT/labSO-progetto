@@ -89,7 +89,7 @@ int main(int argc, char const *argv[]) {
     // Create logFile
     FILE * logFile;
     char logFileName[10];
-    sprintf(logFileName, "T%s.log",trainNumber);
+    sprintf(logFileName, "../log/T%s.log",trainNumber);
     logFile = fopen(logFileName, "w");
     // Utilities for writing date and time in logfile
     time_t rawtime;

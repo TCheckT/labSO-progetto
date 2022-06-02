@@ -116,7 +116,7 @@ int main(int argc, char *argv[]) {
     // ... but first create RBC log file 
     
     char logFileName[10];
-    sprintf(logFileName, "RBC.log");
+    sprintf(logFileName, "../log/RBC.log");
     logFile = fopen(logFileName, "w");
     // Utilities for writing date and time in logfile
     time_t rawtime;

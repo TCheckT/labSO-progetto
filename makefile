@@ -21,6 +21,7 @@ install:
 	mkdir progetto
 	mkdir progetto/src
 	mkdir progetto/bin
+	mkdir progetto/log
 	mv header.h progetto/src/
 	mv *.c progetto/src/
 	cc progetto/src/movementAuthority.c -o progetto/bin/movementAuthority
