@@ -52,3 +52,20 @@ TODO:
 -ottimizzazione generica, vedi un po'te
 -README fatto bene
 
+Ho fatto la cartella log
+
+La prossima che voglio fare è la cartella tmp, dove andranno tutti i file MAx
+	eventualmente anche fileTrackGuard, ma è da vedere in seguito
+	eventualmente anche le pipe, ma queste vengono distrutte alla fine dell'esecuzione(se essa è andata bene e senza errori) quindi potrebbe non essere necessario
+I processi che accedono a MAX sono:
+	padre_treni		li crea nella funzione alla linea 117
+	
+	processo treno 	vi accede attraverso il nome nelle variabili nextStage e currentStage
+						sarà necessario fare un sprintf per aggiungere "../tmp/" all'inizio del contenuto della variabile 
+	
+	stranamente non trovo segmenti di codice in cui il server accede a quei file ('_')
+######################################################################################################
+######################################################################################################
+RIMUOVERE LA PARTE SUPERIORE E QUESTA QUI, DA SOTTO È DEFINITIVA
+######################################################################################################
+######################################################################################################
