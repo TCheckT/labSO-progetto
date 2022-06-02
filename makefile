@@ -31,6 +31,16 @@ install:
 	cc progetto/src/server_RBC.c -o progetto/bin/server_RBC
 	cc progetto/src/turn_manager.c -o progetto/bin/turn_manager
 
+update:
+	rm -f progetto/bin/*
+	rm -f progetto/log/*
+	cc progetto/src/movementAuthority.c -o progetto/bin/movementAuthority
+	cc progetto/src/registro.c -o progetto/bin/registro
+	cc progetto/src/padre_treni.c -o progetto/bin/padre_treni
+	cc progetto/src/processo_treno.c -o progetto/bin/processo_treno
+	cc progetto/src/server_RBC.c -o progetto/bin/server_RBC
+	cc progetto/src/turn_manager.c -o progetto/bin/turn_manager
+
 clean:
 	rm -f *.o
 	rm -f *Pipe*
