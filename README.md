@@ -69,3 +69,19 @@ I processi che accedono a MAX sono:
 RIMUOVERE LA PARTE SUPERIORE E QUESTA QUI, DA SOTTO È DEFINITIVA
 ######################################################################################################
 ######################################################################################################
+
+Per installare, utilizzare il comando "make install". 
+Questo creerà la cartella "progetto" con le sottocartelle "bin","log","src".
+
+bin conterrà i file eseguibili del progetto.
+
+log è la cartella dove verranno salvati i file di log dei processi che rappresentano i treni ed eventualmente del server.
+
+src conterrà i codici sorgente degli applicativi.
+
+Per eseguire il programma, spostarsi nella cartella bin e lanciare l'applicativo "movementAuthority" specificando l'opzione etcs, scegliendo tra "ETCS1" o "ETCS2".
+
+Se si vuole lanciare l'applicativo in modalità "ETCS2" è necessario prima lanciare da un altro terminale il server attraverso il comando "./movementAuthority ETCS2 RBC"
+
+In ogni caso, è necessario specificare dopo il lancio di ogni comando anche la mappa su cui si vuole che l'applicativo lavori, specificando "MAPPA1" o "MAPPA2".
+Se si lancia il programa in modalità ETCS2 dovrà essere specificata la stessa mappa ad entrambi i comandi.
