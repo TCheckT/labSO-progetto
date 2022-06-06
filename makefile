@@ -22,6 +22,7 @@ install:
 	mkdir progetto/src
 	mkdir progetto/bin
 	mkdir progetto/log
+	mkdir progetto/tmp
 	mv header.h progetto/src/
 	mv *.c progetto/src/
 	cc progetto/src/movementAuthority.c -o progetto/bin/movementAuthority
@@ -34,6 +35,7 @@ install:
 update:
 	rm -f progetto/bin/*
 	rm -f progetto/log/*
+	rm -f progetto/tmp/*
 	cc progetto/src/movementAuthority.c -o progetto/bin/movementAuthority
 	cc progetto/src/registro.c -o progetto/bin/registro
 	cc progetto/src/padre_treni.c -o progetto/bin/padre_treni

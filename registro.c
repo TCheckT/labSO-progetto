@@ -113,38 +113,55 @@ int main(int argc, char *argv[]) {
         printf("registro: request from %s received\n", receivedRequest);
 
         // Preparing to send the correct itinerary according to the request received 
-        int selectedTrain;
-        selectedTrain = assignItinerary(receivedRequest);
+        int selectedTrain = assignItinerary(receivedRequest);
 
         // Send itinerary to train selecting it with MAPPA and selectedTrain
+        
         if(strcmp(MAPPA, "MAPPA1") == 0) {     
-            if(selectedTrain==1){
-                sendItinerary(M1itineraryT1, "T1registerPipe", SIZEOF(M1itineraryT1));
-            }else if(selectedTrain==2) {
-                sendItinerary(M1itineraryT2, "T2registerPipe", SIZEOF(M1itineraryT2));
-            }else if(selectedTrain==3) {
-                sendItinerary(M1itineraryT3, "T3registerPipe", SIZEOF(M1itineraryT3));
-            }else if(selectedTrain==4) {
-                sendItinerary(M1itineraryT4, "T4registerPipe", SIZEOF(M1itineraryT4));
-            }else if(selectedTrain==5) {
-                sendItinerary(M1itineraryT5, "T5registerPipe", SIZEOF(M1itineraryT5));
-            }else perror("Error: unexpected request");
+            switch(selectedTrain){
+                case 1: 
+                    sendItinerary(M1itineraryT1, "T1registerPipe", SIZEOF(M1itineraryT1));
+                    break;
+                case 2: 
+                    sendItinerary(M1itineraryT2, "T2registerPipe", SIZEOF(M1itineraryT2));
+                    break;
+                case 3: 
+                    sendItinerary(M1itineraryT3, "T3registerPipe", SIZEOF(M1itineraryT3));
+                    break;
+                case 4: 
+                    sendItinerary(M1itineraryT4, "T4registerPipe", SIZEOF(M1itineraryT4));
+                    break;
+                case 5: 
+                    sendItinerary(M1itineraryT5, "T5registerPipe", SIZEOF(M1itineraryT5));
+                    break;
+                default:
+                    perror("Error: unexpected request");
+            }
         } else if (strcmp(MAPPA, "MAPPA2") == 0) {
-            if(selectedTrain==1) {
-                sendItinerary(M2itineraryT1, "T1registerPipe", SIZEOF(M2itineraryT1));
-            }else if(selectedTrain==2) {
-                sendItinerary(M2itineraryT2, "T2registerPipe", SIZEOF(M2itineraryT2));
-            }else if(selectedTrain==3) {
-                sendItinerary(M2itineraryT3, "T3registerPipe", SIZEOF(M2itineraryT3));
-            }else if(selectedTrain==4) {
-                sendItinerary(M2itineraryT4, "T4registerPipe", SIZEOF(M2itineraryT4));
-            }else if(selectedTrain==5) {
-                sendItinerary(M2itineraryT5, "T5registerPipe", SIZEOF(M2itineraryT5));
-            }else perror("Error: unexpected request");
+            switch(selectedTrain){
+                case 1: 
+                    sendItinerary(M2itineraryT1, "T1registerPipe", SIZEOF(M2itineraryT1));
+                    break;
+                case 2: 
+                    sendItinerary(M2itineraryT2, "T2registerPipe", SIZEOF(M2itineraryT2));
+                    break;
+                case 3: 
+                    sendItinerary(M2itineraryT3, "T3registerPipe", SIZEOF(M2itineraryT3));
+                    break;
+                case 4: 
+                    sendItinerary(M2itineraryT4, "T4registerPipe", SIZEOF(M2itineraryT4));
+                    break;
+                case 5: 
+                    sendItinerary(M2itineraryT5, "T5registerPipe", SIZEOF(M2itineraryT5));
+                    break;
+                default:
+                    perror("Error: unexpected request");
+            }
         } else perror("Error: MAPPA not recognized\n");
         
         satisfiedRequests++;
         printf("registro: itinerary for T%d has been sent\n", selectedTrain);
+       
         // Close and remove pipe used
         close(itineraryRequestPipe_fd);
         unlink(requestPipeName);
@@ -157,7 +174,7 @@ int main(int argc, char *argv[]) {
         now they can resume execution */
     kill(0, SIGCONT);
     
-    printf("\nregistro: process terminated...\n");
+    printf("registro: process terminated...\n");
 
     exit(EXIT_SUCCESS);
     return 0;

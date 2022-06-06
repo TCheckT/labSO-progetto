@@ -4,29 +4,25 @@
 int inputCheck(int argc, char *argv[]);
 
 int main(int argc, char *argv[]) {
-    /* inputCheck check that input arguments are in the correct format:
-        return 0 if input is correct and RBC option not present
-        return 1 if input is wrong
-        return 2 if input correct and RBC option is present */
-    int inputCheckResult = inputCheck(argc, argv);
-    if(inputCheckResult == 1) {
-        printf("Input not accepted! See suggestions and try again.\n");
-        return 0;
-    } else if (inputCheckResult == 2) {
-        // if inputCheckResult == 2 this process will run the server
-        printf("Launching server...\n");
-        execl("./server_RBC", "server_RBC", argv[3], NULL);
+    
+    switch(inputCheck(argc, argv)){
+        case 1:
+            printf("Input not accepted! See suggestions and try again.\n");
+            return 0;
+            break;
+        case 2:
+            printf("Launching server...\n");
+            execl("./server_RBC", "server_RBC", argv[3], NULL);
+            break;
+        default:break;    
     }
-    /* if inputCheckResult = 0 the process continue 
-        creating padre_treni and registro */
 
-    char* MAPPA = argv[2];
-    char* ETCS = argv[1];
-
+    const char* MAPPA = argv[2];
+    const char* ETCS = argv[1];
     
     /* Create pipes that will be used from register to send itineraries to trains */
     char itineraryPipeName[30];
-    int numberOfTrains = (strcmp(MAPPA, "MAPPA1") == 0) ? 4 : 5;
+    const int numberOfTrains = (strcmp(MAPPA, "MAPPA1") == 0) ? 4 : 5;
 
     for (int i = 1; i <= numberOfTrains; ++i)
     {
@@ -77,7 +73,10 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-
+/* inputCheck check that input arguments are in the correct format:
+    return 0 if input is correct and RBC option not present
+    return 1 if input is wrong
+    return 2 if input correct and RBC option is present */
 int inputCheck(int argc, char *argv[]) {
 
     // Check correct number of arguments

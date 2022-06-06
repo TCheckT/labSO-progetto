@@ -45,9 +45,6 @@ Criticità:
 - se MAPPA discordante in server e processo, programma va in loop da entrambe le parti, capire almeno il perchè e eventualmente dare un feedback a schermo di interrompere programmi e ripartire con mappe coordinate, se non è troppo difficile. Sennò si specifica nel readme.
 
 TODO: 
--controllo profondo
--preparare makefile install
--problema deadlock mi sa che si è risolto da solo per come abbiamo implementato il tutto, se ne riparla...
 -opzionale 2: treno fermo quando RBC ha info discordante con la sua
 -ottimizzazione generica, vedi un po'te
 -README fatto bene

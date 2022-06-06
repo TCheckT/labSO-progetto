@@ -1,12 +1,7 @@
 #include "header.h"
 
 FILE * logFile;
-
-void SIGUSR2FromPadre_treniHandler(int signum) {
-    fclose(logFile);
-    printf("\nSIGUSR2 received from padre_treni!\nShutdown Server.\n");
-    exit(EXIT_SUCCESS);
-}
+void SIGUSR2FromPadre_treniHandler(int signum);
 
 struct stagesStatus{
     int stations[8];
@@ -40,6 +35,7 @@ int main(int argc, char *argv[]) {
 
     /* Server has to receive all itineraries through pipe from register */
     printf("Server waiting to receive %s itineraries from registro\n", argv[1]);
+    
     for (int i = 0; i < numberOfTrains; ++i) {
         char receivedStage[5];
 
@@ -79,19 +75,18 @@ int main(int argc, char *argv[]) {
     /* Now server can start to wait for trains requests, it will setup a socket for this kind of communication */
     printf("\nSetting up socket...\n");
     
-    int serverFd, clientFd, serverLen, clientLen;
     struct sockaddr_un serverUNIXAddress; /*Server address */
-    struct sockaddr* serverSockAddrPtr; /*Ptr to server address*/
+    /*Ptr to server address*/
+    struct sockaddr* serverSockAddrPtr = (struct sockaddr*) &serverUNIXAddress; 
+    int serverLen = sizeof (serverUNIXAddress);
+    
     struct sockaddr_un clientUNIXAddress; /*Client address */
-    struct sockaddr* clientSockAddrPtr;/*Ptr to client address*/
-
-    serverSockAddrPtr = (struct sockaddr*) &serverUNIXAddress;
-    serverLen = sizeof (serverUNIXAddress);
-    clientSockAddrPtr = (struct sockaddr*) &clientUNIXAddress;
-    clientLen = sizeof (clientUNIXAddress);
+    /*Ptr to client address*/
+    struct sockaddr* clientSockAddrPtr = (struct sockaddr*) &clientUNIXAddress;
+    int clientLen = sizeof (clientUNIXAddress);
     
     // socket()
-    serverFd = socket (AF_UNIX, SOCK_STREAM, 0);
+    int serverFd = socket (AF_UNIX, SOCK_STREAM, 0);
     
     // bind()
     serverUNIXAddress.sun_family = AF_UNIX; /* Set domain type */
@@ -104,7 +99,8 @@ int main(int argc, char *argv[]) {
     listen (serverFd, 5); /* Maximum pending connection length */
     
     // accept()
-    clientFd = accept (serverFd, clientSockAddrPtr, &clientLen);
+    int clientFd = accept (serverFd, clientSockAddrPtr, &clientLen);
+    
     char serverPid[10000];
     sprintf(serverPid, "%d", getpid());
     printf("Sending server pid to padre_treni before waiting for requests from trains...\n");
@@ -112,9 +108,6 @@ int main(int argc, char *argv[]) {
 
     close(clientFd);
 
-    /* Begin to accept client connections... */
-    // ... but first create RBC log file 
-    
     char logFileName[10];
     sprintf(logFileName, "../log/RBC.log");
     logFile = fopen(logFileName, "w");
@@ -124,7 +117,6 @@ int main(int argc, char *argv[]) {
     char dateAndTime [30];
 
     while (1) {
-        
         printf("\nServer waiting for requests from clients...\n");
         
         // listen()
@@ -163,7 +155,7 @@ int main(int argc, char *argv[]) {
 
             /* Update server data structure */
             // Increment value of the station occupated currently
-            status.stations[stationToIncrement] += 1;
+            status.stations[stationToIncrement]++;
 
             // Decrement value of the track or station occupated previously
             
@@ -171,7 +163,7 @@ int main(int argc, char *argv[]) {
             strncpy(stageToDecrement, train[train_n].itinerary[progresses[train_n]], 5); 
             // printf("stage to decrement: %s\n", stageToDecrement);
             // increment progress of the train itinerary
-            progresses[train_n] += 1;
+            progresses[train_n]++;
 
             // Access to the stageToDecrement correspondent cell in status.segments or status.stations and decrement value
             char isStation[2];
@@ -181,13 +173,13 @@ int main(int argc, char *argv[]) {
                 strncpy(stationNumber, stageToDecrement+1, strlen(stageToDecrement));
                 // printf("stationNumber: %s\n", stationNumber);
                 int station_n = atoi(stationNumber) - 1;
-                status.stations[station_n] -= 1;
+                status.stations[station_n]--;
             } else {
                 char segmentNumber[5];
                 strncpy(segmentNumber, stageToDecrement+2, strlen(stageToDecrement));
                 // printf("segmentNumber: %s\n", segmentNumber);
                 int segment_n = atoi(segmentNumber) - 1;
-                status.segments[segment_n] -= 1;
+                status.segments[segment_n]--;
             }
 
             /* say "2" to train, that means that it has entered in a station */
@@ -251,7 +243,6 @@ int main(int argc, char *argv[]) {
                 sprintf(authorized, "NO");
             }
         }
-
         if (strcmp(authorized, "SI") == 0) printf("AUTHORIZED to proceed\n");
         else if (strcmp(authorized, "NO") == 0) printf("NOT AUTHORIZED to proceed\n");
         
@@ -268,6 +259,11 @@ int main(int argc, char *argv[]) {
         /* Close socket and be ready to accept new connections */  
         close(clientFd);
     }
-
     return 0;
+}
+
+void SIGUSR2FromPadre_treniHandler(int signum) {
+    fclose(logFile);
+    printf("\nSIGUSR2 received from padre_treni!\nShutdown Server.\n");
+    exit(EXIT_SUCCESS);
 }

@@ -2,11 +2,8 @@
 
 int signalCounter = 0;
 
-void childTerminationHandler(int signum) {
-    signalCounter++;
-}
+void childTerminationHandler(int signum) {signalCounter++;}
 
-/* Function to create files MAx representing tracks segments */
 int createTracks();
 
 int main(int argc, char *argv[]) {
@@ -14,18 +11,19 @@ int main(int argc, char *argv[]) {
         of SIGUSR1 signal */
     signal(SIGUSR1, childTerminationHandler);
     
-    char* MAPPA = argv[1];
-    char* ETCS = argv[2];
+    const char* MAPPA = argv[1];
+    const char* ETCS = argv[2];
+    const int numberOfTrains=(strcmp(MAPPA, "MAPPA1") == 0) ? 4 : 5;
+
 
     // create files that represent tracks segments
-    if(createTracks()!=0)
-        perror("Error: binary segments not created correctly\n");
+    if(createTracks()!=0)    perror("Error: binary segments not created correctly\n");
+    
     printf("padre_treni: MAx files created\n");
 
     // launch turn_manager
-    pid_t turn_manager;
+    pid_t turn_manager = fork();
 
-    turn_manager = fork();
     if (turn_manager < 0) {
         fprintf(stderr, "Fork failed\n");
         exit(EXIT_FAILURE);
@@ -47,12 +45,18 @@ int main(int argc, char *argv[]) {
         // socket()
         serverSockAddrPtr = (struct sockaddr*) &serverUNIXAddress;
         serverLen = sizeof (serverUNIXAddress);
+     
         //clientFd = socket (AF_UNIX, SOCK_STREAM, 0);
         serverUNIXAddress.sun_family = AF_UNIX; /* Server domain */
+     
         strcpy (serverUNIXAddress.sun_path, "authorization"); /*Server name*/
+     
         clientFd = socket (AF_UNIX, SOCK_STREAM, 0);
+     
         printf("padre_treni: waiting for server to setup socket and accept connection to receive its pid...\n");
-        do { /* Loop until a connection is made with the server */
+     
+        do { 
+            /* Loop until a connection is made with the server */
             result = connect (clientFd, serverSockAddrPtr, serverLen);
             if (result == -1){
                 printf("padre_treni: ...\n");
@@ -69,17 +73,17 @@ int main(int argc, char *argv[]) {
     /* create the right number of trains according to MAPPA: 
         always declare 5 pid but if MAPPA1 doesn't initialise the last one */
     pid_t train[5];
-    int numberOfTrains=(strcmp(MAPPA, "MAPPA1") == 0) ? 4 : 5;
     
     for(short int i = 0; i < numberOfTrains; i++){ 
        
         train[i] = fork();
        
         if(train[i] < 0) {
+         
             fprintf(stderr, "Fork failed\n");
             exit(EXIT_FAILURE);
-        }
-        else if(train[i] == 0) {
+        
+        }else if(train[i] == 0) {
             // exec a processo_treno with trainNUmber, MAPPA and ETCS as arguments
             char trainNumber[5];
             sprintf(trainNumber, "%d",i+1);
@@ -114,8 +118,8 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
+/* Function to create files MAx representing tracks segments */
 int createTracks() {
-    /* Creating all the 16 files that represent tracks segments */
     FILE * file;
     char name[5];
 
@@ -123,7 +127,6 @@ int createTracks() {
         // Generating the name of the file MAx with metavariables
         sprintf(name, "MA%d",i);
 
-        // Opening the file
         file = fopen(name, "w");
 
         // Setting access permissions
@@ -132,7 +135,6 @@ int createTracks() {
         // Writing 0 as first character
         fwrite("0", sizeof(char), 1, file);
 
-        // Closing file
         fclose(file);
     }
     return 0;

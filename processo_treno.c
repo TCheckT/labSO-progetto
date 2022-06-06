@@ -1,8 +1,7 @@
 #include "header.h"
 
-void startingMissionSignalHandler(int signum) {
     //do nothing, just awake the train from SIGSTOP
-}
+void startingMissionSignalHandler(int signum) {}
 
 int requestAccessTo(char step[5], const char* MODE, int clientFd, const char* trainNumber);
 
@@ -17,34 +16,35 @@ int main(int argc, char const *argv[]) {
     int clientFd, serverLen, result;
     struct sockaddr_un serverUNIXAddress;
     struct sockaddr* serverSockAddrPtr;
+
     /* Prepare socket for communication with server if ETCS2 */
     if (strcmp(ETCS, "ETCS2") == 0) {
+    
         // socket()
         serverSockAddrPtr = (struct sockaddr*) &serverUNIXAddress;
         serverLen = sizeof (serverUNIXAddress);
+    
         //clientFd = socket (AF_UNIX, SOCK_STREAM, 0);
         serverUNIXAddress.sun_family = AF_UNIX; /* Server domain */
+    
         strcpy (serverUNIXAddress.sun_path, "authorization"); /*Server name*/
+    
     } else {
         clientFd = 0;
     }
 
     /* Preparing request message for process registro to ask for the itinerary */
     int itineraryRequestPipe_fd, requestLen; 
-    char request[5];
-	sprintf(request, "T%s", trainNumber);
+    char request[5],requestPipeName[30];
+	
+    sprintf(request, "T%s", trainNumber);    
     requestLen = strlen (request) + 1;
 
     /* Use the designated pipe created by process registro to make request */
-    char requestPipeName[30];
     sprintf(requestPipeName, "T%sitineraryRequestPipe", trainNumber);
 
-    do { /* try open pipe until successful */
+    do {/* try open pipe until successful */
         itineraryRequestPipe_fd = open (requestPipeName, O_WRONLY);
-        /* 
-        DEBUG: check open result  to see when registro process will create the pipe
-        printf("%s prova ad aprire %s, risultato: %d\n", request, requestPipeName, itineraryRequestPipe_fd);
-        */
         if (itineraryRequestPipe_fd == -1) sleep (1); /* Try again after one second if fail */
     } while (itineraryRequestPipe_fd == -1);
 
