@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
 
     close(clientFd);
 
-    char logFileName[10];
+    char logFileName[15];
     sprintf(logFileName, "../log/RBC.log");
     logFile = fopen(logFileName, "w");
     // Utilities for writing date and time in logfile

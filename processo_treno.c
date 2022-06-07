@@ -88,7 +88,7 @@ int main(int argc, char const *argv[]) {
     /* Preparing to start mission */
     // Create logFile
     FILE * logFile;
-    char logFileName[10];
+    char logFileName[15];
     sprintf(logFileName, "../log/T%s.log",trainNumber);
     logFile = fopen(logFileName, "w");
     // Utilities for writing date and time in logfile
