@@ -168,7 +168,7 @@ int main(int argc, char *argv[]) {
     }
     sleep(1); /* wait a while that all trains collect their stages */
     
-    printf("registro: All itineraries has been sent, trains can start their mission...\n");
+    printf("registro: All itineraries have been sent, trains can start their mission...\n");
     /* Send a SIGCONT to stopped trains before terminating, 
         when a train received its itinerary it stop itself with a SIGSTOP,
         now they can resume execution */
