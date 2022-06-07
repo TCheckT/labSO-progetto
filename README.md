@@ -25,8 +25,5 @@ Istruzioni del makefile:
 	update: 
 		Utilizzato in fase di implementazione e test del progetto: in caso di modifica di un file sorgente, il comado "make update" rimuove tutti gli eseguibili e ne genera le eventuali nuove versioni eseguendo nuovamente tutti i file sorgente
 	
-	clean:
-		In caso si sia voluto eseguire degli applicativi senza lanciare il comando "make install" (ad esempio per testare un singlolo file) il comando "make clean" rimuoverà dalla cartella tutti gli eseguibili eventualmente creati e i file generati dall'esecuzione stessa, inclusi i file di log, lasciando nella cartella solo i file sorgente
-
 	restore:
 		Dopo aver eseguito l'installazione si può lanciare questo comando per rimuovere la struttura ad albero delle cartelle del progetto, lasciando solo i file sorgente. I file eseguibili e quelli creati durante un eventuale eseuzione vengono eliminati nel processo, inculusi i file di log

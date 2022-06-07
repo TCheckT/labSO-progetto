@@ -41,18 +41,6 @@ update:
 	cc progetto/src/server_RBC.c -o progetto/bin/server_RBC
 	cc progetto/src/turn_manager.c -o progetto/bin/turn_manager
 
-clean:
-	rm -f *.o
-	rm -f *Pipe*
-	rm -f *.log
-	rm -f T*
-	rm -f movementAuthority registro padre_treni processo_treno server_RBC turn_manager
-	rm -f MA*
-	rm -f itineraryRequestPipe
-	rm -f authorization
-	rm -f trackFilesGuard
-
-# to remove: this option must not be present in definitive version of the project
 restore:
 	mv progetto/src/* .
 	rm -rdf progetto
