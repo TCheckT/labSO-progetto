@@ -116,11 +116,8 @@ int main(int argc, char const *argv[]) {
         do { /* Repeat until it's train turn */
             trackFilesGuard = fopen(trackFilesGuardName, "r");
             fseek(trackFilesGuard, 0, SEEK_SET);
-            int r;
-            r = fread(turn, 1, 1, trackFilesGuard);
-            /* DEBUG: checking that the correct train got access according to turn
-                printf("T%s check that it's T%s turn\n", trainNumber, turn); 
-                */
+            int r = fread(turn, 1, 1, trackFilesGuard);
+            sprintf(turn, "%c", turn[0]);
             fclose(trackFilesGuard);
             sleep(1);
         } while(strcmp(turn, trainNumber) != 0);
